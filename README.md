@@ -39,7 +39,7 @@
 build 環境用に qmk firmware の container image を用意しています。image size が大きいため予め image を pull してくることをおすすめします。
 
 ```bash
-docker push goropikari/qmkfm:0.18.17
+docker pull goropikari/qmkfm:0.18.17
 ```
 
 docker を使わずに qmk firmware 環境を用意する場合は [.devcontainer/Dockerfile](.devcontainer/Dockerfile) を参考に環境を整えてください
