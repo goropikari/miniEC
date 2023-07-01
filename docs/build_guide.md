@@ -2,6 +2,8 @@
 
 ![miniec](img/miniec.png)
 
+[販売ページ](https://pikarikbd.booth.pm/items/4799710)
+
 
 ## 部品
 ### キット同封物

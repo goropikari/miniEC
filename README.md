@@ -7,3 +7,5 @@
 ビルドガイド
 - [prototype, ~v1](https://github.com/goropikari/miniEC/blob/prototype/README.md)
 - [v1~](https://github.com/goropikari/miniEC/blob/v1/docs/build_guide.md)
+
+[販売ページ](https://pikarikbd.booth.pm/items/4799710)
