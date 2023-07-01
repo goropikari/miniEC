@@ -1,4 +1,7 @@
-/* Copyright 2020 sekigon-gonnoc
+/* Copyright 2012 Jun Wako <wakojun@gmail.com>
+ * Copyright 2020 sekigon-gonnoc
+ * Copyright 2020 ginjake
+ * Copyright 2023 goropikari
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +46,6 @@
 #define S5 5
 #define S6 6
 #define S7 7
-
 
 #define ROWS_PER_HAND (MATRIX_ROWS/2)
 #define KEY_NUM (MATRIX_COLS*ROWS_PER_HAND)
@@ -157,11 +159,6 @@ void init_calibrate_info(void){
     }
 }
 
-
-
-
-
-
 // pin connections
 const uint8_t row_pins[]     = MATRIX_ROW_PINS;
 const uint8_t col_channels[] = COL_PINS;
@@ -262,7 +259,7 @@ bool ecsm_update_key(matrix_row_t* current_row, uint8_t row, uint8_t col, uint16
     bool current_state = (*current_row >> col) & 1;
 
     // press to release
-    if (current_state && sw_value < config.low_threshold) {
+    if (current_state && sw_value < config.low_threshold[row][col]) {
         *current_row &= ~(1 << col);
         return true;
     }
@@ -270,7 +267,7 @@ bool ecsm_update_key(matrix_row_t* current_row, uint8_t row, uint8_t col, uint16
     // release to press
     uint8_t k = row * (MATRIX_ROWS / 2) + col;
     if ((!current_state)) {
-        if (sw_value > calibrate[k].threshold + config.high_threshold) {
+        if (sw_value > calibrate[k].threshold + config.high_threshold[row][col]) {
             *current_row |= (1 << col);
             return true;
         } else {

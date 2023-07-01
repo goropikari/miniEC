@@ -81,5 +81,5 @@ fi
 	-e ALT_GET_KEYBOARDS=true \
 	-e SKIP_GIT="$SKIP_GIT" \
 	-e MAKEFLAGS="$MAKEFLAGS" \
-	goropikari/qmkfm:0.18.17 \
+	goropikari/qmkfm:${QMK_VERSION:-0.21.3} \
 	make "$keyboard${keymap:+:$keymap}${target:+:$target}"

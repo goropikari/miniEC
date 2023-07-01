@@ -1,6 +1,6 @@
 /*
 Copyright 2020 sekigon-gonnoc
-Copyright 2022 goropikari (@goropikari)
+Copyright 2023 goropikari (@goropikari)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-
-#include "config_common.h"
 
 /*
  * Feature disable options
@@ -39,12 +37,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* EC switch threshold with hysteresis */
 // for sekigon module
-#define HIGH_THRESHOLD 45
-#define LOW_THRESHOLD 30
+// non reversible
+// #define HIGH_THRESHOLD 45
+// #define LOW_THRESHOLD 25
 
-// for goropikari molude
-// #define HIGH_THRESHOLD 10
+// reversible left
+// #define HIGH_THRESHOLD 20
+// #define LOW_THRESHOLD 20
+// reversible right
+// #define HIGH_THRESHOLD 60
+// #define LOW_THRESHOLD 40
+
+// for goropikari molude v0.1
+// #define HIGH_THRESHOLD 7
 // #define LOW_THRESHOLD 5
+
+// for goropikari molude v0.2
+// #define HIGH_THRESHOLD 30
+// #define LOW_THRESHOLD 15
+
+// for v1.1.1
+#define HIGH_THRESHOLD 35
+#define LOW_THRESHOLD 25
+
+#define TAP_CODE_DELAY 5
+#define TAPPING_TERM 125
+#define PERMISSIVE_HOLD
 
 /*
  * Keyboard Matrix Assignments
@@ -67,12 +85,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * Split Keyboard specific options, make sure you have 'SPLIT_KEYBOARD = yes' in your rules.mk, and define SOFT_SERIAL_PIN.
  */
 #define SOFT_SERIAL_PIN D2  // or D1, D2, D3, E6
-#define EE_HANDS
+// #define EE_HANDS
+#define SPLIT_HAND_PIN F4
 // #define MASTER_LEFT
 
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
-// https://25keys.com/2022/02/10/debounce/
 #define DEBOUNCE 5
 
 /* define if matrix has ghost (lacks anti-ghosting diodes) */

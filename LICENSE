@@ -1,3 +1,8 @@
+This is licensed under a Creative Commons Attribution 4.0 International License except for keyboards/miniec/, build/, docker_build.sh.
+https://creativecommons.org/licenses/by/4.0/
+
+keyboards/miniec/, build/, docker_build.sh are Licensed under GNU General Public License v3.0.
+-------
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -70,7 +75,7 @@ modification follow.
 
                        TERMS AND CONDITIONS
 
-  0. Definitions.
+  1. Definitions.
 
   "This License" refers to version 3 of the GNU General Public License.
 

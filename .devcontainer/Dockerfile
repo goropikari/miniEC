@@ -1,13 +1,17 @@
-# goropikari/qmkfm:0.18.17 作成時の Dockerfile
-# devcontainer の中でこの Dockerfile をビルドはしていない
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
 ARG REMOTE_USER=vscode
-ARG QMK_VERSION=0.18.17
+ARG QMK_VERSION=0.21.3
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y git python3-pip make gcc-avr binutils-avr avr-libc avrdude vim gcc-arm-none-eabi ripgrep
+    apt-get install -y git python3-pip make gcc-avr binutils-avr avr-libc avrdude vim gcc-arm-none-eabi ripgrep wget libc6-i386 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN cd /usr/bin/ && \
+    wget https://www.pjrc.com/teensy/hid_listen && \
+    chmod +x hid_listen
 
 WORKDIR /home/vscode
 USER vscode

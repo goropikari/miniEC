@@ -27,8 +27,8 @@
 #include "matrix.h"
 
 typedef struct {
-    uint16_t low_threshold;   // threshold for key release
-    uint16_t high_threshold;  // threshold for key press
+    uint16_t low_threshold[3][6];   // threshold for key release
+    uint16_t high_threshold[3][6];  // threshold for key press
 } ecsm_config_t;
 
 int      ecsm_init(ecsm_config_t const* const ecsm_config);

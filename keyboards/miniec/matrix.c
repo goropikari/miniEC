@@ -1,4 +1,5 @@
 /* Copyright 2020 sekigon-gonnoc
+ * Copyright 2023 goropikari
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +22,6 @@
 #include "split_util.h"
 #include "transport.h"
 #include "debounce.h"
-
-#ifndef LOW_THRESHOLD
-#    define LOW_THRESHOLD 30
-#endif
-
-#ifndef HIGH_THRESHOLD
-#    define HIGH_THRESHOLD 45
-#endif
 
 #define ERROR_DISCONNECT_COUNT 20
 
@@ -53,7 +46,35 @@ void matrix_init_custom(void) {
 
     split_pre_init();
 
-    ecsm_config_t ecsm_config = {.low_threshold = LOW_THRESHOLD, .high_threshold = HIGH_THRESHOLD};
+    // ecsm_config_t ecsm_config = {.low_threshold = LOW_THRESHOLD, .high_threshold = HIGH_THRESHOLD};
+    ecsm_config_t ecsm_config;
+    for (int r = 0; r < MATRIX_ROWS / 2; r++) {
+        for (int c = 0; c < MATRIX_COLS; c++) {
+            ecsm_config.low_threshold[r][c] = LOW_THRESHOLD;
+            ecsm_config.high_threshold[r][c] = HIGH_THRESHOLD;
+        }
+    }
+    if (isLeftHand) { // left side hand
+        // specific configuration
+    } else { // right side hand
+        // キー毎に閾値を調整する例
+        // uint16_t lows[MATRIX_ROWS / 2][MATRIX_COLS] = {
+        //     { 0, 11, 10,  0,  0, 25},
+        //     { 0, 15, 20, 15,  0,  0},
+        //     { 0, 15, 25,  0,  0,  0},
+        // };
+        // uint16_t highs[MATRIX_ROWS / 2][MATRIX_COLS] = {
+        //     { 0, 13, 15,  0,  0, 30},
+        //     { 0, 20, 22, 20,  0,  0},
+        //     { 0, 20, 30,  0,  0,  0},
+        // };
+        // for (int r = 0; r < MATRIX_ROWS / 2; r++) {
+        //     for (int c = 0; c < MATRIX_COLS; c++) {
+        //         if (lows[r][c] != 0) ecsm_config.low_threshold[r][c] = lows[r][c];
+        //         if (highs[r][c] != 0) ecsm_config.high_threshold[r][c] = highs[r][c];
+        //     }
+        // }
+    }
 
     ecsm_init(&ecsm_config);
 
@@ -75,34 +96,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     return updated;
 }
-
-// bool matrix_post_scan(void) {
-//     if (is_keyboard_master()) {
-//         // static uint8_t error_count;
-
-//         // if (!transport_master(matrix + thatHand)) {
-//         //     error_count++;
-
-//         //     if (error_count > ERROR_DISCONNECT_COUNT) {
-//         //         // reset other half if disconnected
-//         //         dprintf("Error: disconnect split half\n");
-//         //         for (int i = 0; i < ROWS_PER_HAND; ++i) {
-//         //             matrix[thatHand + i] = 0;
-//         //         }
-//         //     }
-//         // } else {
-//         //     error_count = 0;
-//         // }
-
-//         matrix_scan_quantum();
-//     } else {
-//         // transport_slave(matrix + thisHand);
-
-//         matrix_slave_scan_user();
-//     }
-
-//     return false;
-// }
 
 uint8_t matrix_scan(void) {
     bool changed = matrix_scan_custom(raw_matrix);
