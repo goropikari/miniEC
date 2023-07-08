@@ -246,3 +246,22 @@ make miniec:blank:flash
 # docker を使う場合
 QMK_VERSION=0.21.3 ./docker_build.sh miniec:blank:flash
 ```
+
+## オプション
+
+### ケース
+小石用ケースの 3D モデルを配布しております。[左用](3d_model/case-left.stl), [右用](3d_model/case-right.stl)。
+
+ご家庭の 3D プリンター、もしくは専門の業者に依頼して印刷してご使用ください。
+こちらのケースはボトムプレートの代わりにご使用ください。その際、M4 2 mm スペーサーは使わないでください。
+
+![miniec case](./img/miniec_case.png)
+
+![miniec case trrs hole](./img/miniec_case_trrs.png)
+
+![miniec case promicro hole](./img/miniec_case_promicro.jpg)
+
+写真のケースは JLCPCB Resin Imagine Black で作りました。
+
+### プレートデータ
+ご自身でケースを作成されたい方は[ボトムプレートのデータ](plate/)を KiCad, svg 形式で配布しておりますのでご活用ください。

@@ -9,3 +9,7 @@
 - [v1~](https://github.com/goropikari/miniEC/blob/v1/docs/build_guide.md)
 
 [販売ページ](https://pikarikbd.booth.pm/items/4799710)
+
+License
+- keyboards/miniec/, build/, docker_build.sh: GNU General Public License v3.0
+- 3d_model/, plate/: [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/)
