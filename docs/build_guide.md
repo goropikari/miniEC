@@ -160,7 +160,7 @@ PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定し�
 ## Firmware 焼き
 
 以降の動作確認は Linux(Ubuntu 22.04) で行っています。その他の OS をお使いの場合は適宜内容を読み替えてください。
-QMK Firmware は version 0.21.3 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.21.3 の Doc](https://github.com/qmk/qmk_firmware/tree/0.21.3/docs) をご参照ください。
+QMK Firmware は version 0.22.2 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.22.2 の Doc](https://github.com/qmk/qmk_firmware/tree/0.22.2/docs) をご参照ください。
 
 ### QMK Firmware 環境構築
 #### ローカル環境に構築
@@ -176,7 +176,7 @@ cd qmk_firmware
 #### Docker を使う場合
 
 ```bash
-docker pull goropikari/qmkfm:0.21.3
+docker pull goropikari/qmkfm:0.22.2
 git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
 cd miniEC
 ```
@@ -193,7 +193,7 @@ firmware を焼くときはこのリポジトリにある `keyboards` ディレ�
 make miniec:test:flash
 
 # docker を使う場合
-QMK_VERSION=0.21.3 ./docker_build.sh miniec:test:flash
+QMK_VERSION=0.22.2 ./docker_build.sh miniec:test:flash
 ```
 
 うまく入力ができなかった場合は後述の「[閾値を調整する](#閾値を調整する)」を参考にしきい値を調節してください。
@@ -206,7 +206,7 @@ QMK_VERSION=0.21.3 ./docker_build.sh miniec:test:flash
 make miniec:default:flash
 
 # docker を使う場合
-QMK_VERSION=0.21.3 ./docker_build.sh miniec:default:flash
+QMK_VERSION=0.22.2 ./docker_build.sh miniec:default:flash
 ```
 
 
@@ -244,13 +244,18 @@ Listening:
 make miniec:blank:flash
 
 # docker を使う場合
-QMK_VERSION=0.21.3 ./docker_build.sh miniec:blank:flash
+QMK_VERSION=0.22.2 ./docker_build.sh miniec:blank:flash
 ```
+
+### トラブルシューティング
+
+うまく機能しない場合に調査すべきポイントを [wiki](https://github.com/goropikari/miniEC/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0) にまとめています。
+
 
 ## オプション
 
 ### ケース
-小石用ケースの 3D モデルを配布しております。[左用](3d_model/case-left.stl), [右用](3d_model/case-right.stl)。
+小石用ケースの 3D モデルを配布しております。[左用](../3d_model/case-left.stl), [右用](../3d_model/case-right.stl)。
 
 ご家庭の 3D プリンター、もしくは専門の業者に依頼して印刷してご使用ください。
 こちらのケースはボトムプレートの代わりにご使用ください。その際、M4 2 mm スペーサーは使わないでください。
