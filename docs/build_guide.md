@@ -269,4 +269,4 @@ QMK_VERSION=0.22.2 ./docker_build.sh miniec:blank:flash
 写真のケースは JLCPCB Resin Imagine Black で作りました。
 
 ### プレートデータ
-ご自身でケースを作成されたい方は[ボトムプレートのデータ](plate/)を KiCad, svg 形式で配布しておりますのでご活用ください。
+ご自身でケースを作成されたい方は[ボトムプレートのデータ](../plate/)を KiCad, svg 形式で配布しておりますのでご活用ください。
