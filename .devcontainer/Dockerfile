@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
 ARG REMOTE_USER=vscode
-ARG QMK_VERSION=0.21.3
+ARG QMK_VERSION=0.22.10
 
 RUN apt-get update && \
     apt-get upgrade -y && \

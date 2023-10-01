@@ -27,7 +27,7 @@
 
 | 名前            | 数量     | 備考                                 |
 |-----------------|----------|--------------------------------------|
-| ProMicro        |        2 | 動作確認済みは以下です<br>- https://shop.yushakobo.jp/products/pro-micro |
+| ProMicro        |        2 | 動作確認済みは以下です<br>- https://shop.yushakobo.jp/products/pro-micro<br>- https://talpkeyboard.net/items/62e24e6f8a0bd07fe2d38137 |
 | 2.5~3.5 mm 12pin ピンヘッダー or コンスルー | 4 | ピンヘッダーであれば ProMicro を購入するとおそらく同封されています。コンスルーは遊舎工房や TALP KEYBOARD から購入できます。<br>- https://shop.yushakobo.jp/products/31 <br>- https://talpkeyboard.net/items/5e056626d790db16e2889233 |
 | スイッチ        | 36キー分 | 使用できるスイッチに関しては「[動作確認済みスイッチ](switch.md)」をご参照ください |
 | キーキャップ    | 36キー分 | NIZ, BTO のスイッチだと CherryMX 用のものが使えます          |
@@ -162,7 +162,7 @@ PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定し�
 ## Firmware 焼き
 
 以降の動作確認は Linux(Ubuntu 22.04) で行っています。その他の OS をお使いの場合は適宜内容を読み替えてください。
-QMK Firmware は version 0.22.2 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.22.2 の Doc](https://github.com/qmk/qmk_firmware/tree/0.22.2/docs) をご参照ください。
+QMK Firmware は version 0.22.10 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.22.10 の Doc](https://github.com/qmk/qmk_firmware/tree/0.22.10/docs) をご参照ください。
 
 ### QMK Firmware 環境構築
 #### ローカル環境に構築
@@ -178,7 +178,7 @@ cd qmk_firmware
 #### Docker を使う場合
 
 ```bash
-docker pull goropikari/qmkfm:0.22.2
+docker pull goropikari/qmkfm:0.22.10
 git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
 cd miniEC
 ```
@@ -195,7 +195,7 @@ firmware を焼くときはこのリポジトリにある `keyboards` ディレ�
 make miniec:test:flash
 
 # docker を使う場合
-QMK_VERSION=0.22.2 ./docker_build.sh miniec:test:flash
+QMK_VERSION=0.22.10 ./docker_build.sh miniec:test:flash
 ```
 
 うまく入力ができなかった場合は後述の「[閾値を調整する](#閾値を調整する)」を参考にしきい値を調節してください。
@@ -208,7 +208,7 @@ QMK_VERSION=0.22.2 ./docker_build.sh miniec:test:flash
 make miniec:default:flash
 
 # docker を使う場合
-QMK_VERSION=0.22.2 ./docker_build.sh miniec:default:flash
+QMK_VERSION=0.22.10 ./docker_build.sh miniec:default:flash
 ```
 
 
@@ -246,7 +246,7 @@ Listening:
 make miniec:blank:flash
 
 # docker を使う場合
-QMK_VERSION=0.22.2 ./docker_build.sh miniec:blank:flash
+QMK_VERSION=0.22.10 ./docker_build.sh miniec:blank:flash
 ```
 
 ### トラブルシューティング
