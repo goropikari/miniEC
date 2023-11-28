@@ -36,13 +36,14 @@ enum layer_names {
 #define LOWER  MO(_LOWER)
 #define RAISE  MO(_RAISE)
 #define ADJUST MO(_ADJUST)
+#define RAI_ENT LT(_RAISE, KC_ENT)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DVORAK] = LAYOUT(
         KC_QUOT     , KC_COMM  , KC_DOT   , KC_P                 , KC_Y    ,                KC_F     , KC_G     , KC_C     , KC_R     , KC_L     ,
         KC_A        , KC_O     , KC_E     , KC_U                 , KC_I    ,                KC_D     , KC_H     , KC_T     , KC_N     , KC_S     ,
         KC_SCLN     , KC_Q     , KC_J     , KC_K                 , KC_X    ,                KC_B     , KC_M     , KC_W     , KC_V     , KC_Z     ,
-                          RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL   ,      LT(_RAISE, KC_ENT) , KC_MT_SS , XXXXX
+                          RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL ,                RAI_ENT  , KC_MT_SS , KC_RALT
     ),
 
     [_LOWER] = LAYOUT(

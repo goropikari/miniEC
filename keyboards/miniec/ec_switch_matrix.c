@@ -60,9 +60,6 @@
 #define DEFAULT_FILTER_Q (1.0/sqrt(2.0))
 #define DEFAULT_SAMPLE_HZ 150.0
 #define DEFAULT_LOWPASS_HZ 1.0
-// #define _barrier() asm volatile ("" ::: "memory")
-// static const uint8_t row_pins[] = MATRIX_ROW_PINS;
-static const uint8_t col_pins[] = MUX_SEL_PINS;
 
 typedef struct{
     uint8_t threshold;

@@ -15,5 +15,6 @@ AUDIO_ENABLE = no           # Audio output
 CUSTOM_MATRIX = lite
 SPLIT_KEYBOARD = yes
 # DEBOUNCE_TYPE = sym_eager_pk
+ANALOG_DRIVER_REQUIRED = yes
 
-SRC += analog.c ec_switch_matrix.c matrix.c
+SRC += ec_switch_matrix.c matrix.c
