@@ -189,7 +189,8 @@ PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定し�
 ## Firmware 焼き
 
 以降の動作確認は Linux(Ubuntu 22.04) で行っています。その他の OS をお使いの場合は適宜内容を読み替えてください。
-QMK Firmware は version 0.23.0 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.23.0 の Doc](https://github.com/qmk/qmk_firmware/tree/0.23.0/docs) をご参照ください。
+Windows をお使いの場合は WSL で docker を使い firmware を build した後に生成された hex ファイルを qmk toolbox を使用して firmware を書き込むのが比較的楽だと思います。
+QMK Firmware は version 0.23.2 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.23.2 の Doc](https://github.com/qmk/qmk_firmware/tree/0.23.2/docs) をご参照ください。
 
 ### QMK Firmware 環境構築
 #### ローカル環境に構築
@@ -197,6 +198,8 @@ QMK Firmware は version 0.23.0 を元にしています。公式サイトのド
 ```bash
 git clone --depth 1 --recurse-submodules --shallow-submodules -b v1 https://github.com/goropikari/miniEC
 cd miniEC
+python3 -m venv env
+source env/bin/activate
 python3 -m pip install -r requirements.txt
 ln -s $(pwd)/keyboards/miniec qmk_firmware/keyboards/miniec
 cd qmk_firmware
@@ -205,7 +208,7 @@ cd qmk_firmware
 #### Docker を使う場合
 
 ```bash
-docker pull goropikari/qmkfm:0.23.0
+docker pull goropikari/qmkfm:0.23.2
 git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
 cd miniEC
 ```
@@ -230,8 +233,15 @@ vial 0.7.1 で動作を確認しています。
 make miniec:test:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.0 ./docker_build.sh miniec:test:flash
+QMK_VERSION=0.23.2 ./docker_build.sh miniec:test:flash
 ```
+
+`Waiting for USB serial port - reset your controller now (Ctrl+C to cancel)....` と出たら reset switch を2回押して firmware を書き込んでください。
+
+※ `QMK_VERSION=0.23.2 ./docker_build.sh miniec:test` と `flash` を抜くとコンパイルするだけで終わります。WSL を使用している場合はこちらの方法が推奨です。
+
+
+
 
 うまく入力ができなかった場合は後述の「[閾値を調整する](#閾値を調整する)」を参考にしきい値を調節してください。
 
@@ -243,7 +253,7 @@ QMK_VERSION=0.23.0 ./docker_build.sh miniec:test:flash
 make miniec:default:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.0 ./docker_build.sh miniec:default:flash
+QMK_VERSION=0.23.2 ./docker_build.sh miniec:default:flash
 ```
 
 
@@ -259,19 +269,19 @@ docker run --rm -it --privileged -v /dev:/dev goropikari/hid_listen:1.01
 ```
 
 下は2回分の読み取り値の例です(USB ケーブルが刺されている側だけの値が出力されます)。
-キーを押していない状態が 20 以下、押した状態では 63 と他よりも高くなっています。
+キーを押していない状態が 70 以下、押した状態では 282 と他よりも高くなっています。
 全キー分の値を見つつ最適な `HIGH_THRESHOLD`, `LOW_THRESHOLD` の値を決めてください
 
 ```
 Waiting for device:
 Listening:
-  10  17  13   7  11   5
-  13   9   6  12  11  13
-   8   9  15  12   9  10
+  67  64  48  45  46  45
+  18  37  45  34  30  63
+  28  50  40  48  43  78
 
-  10  16  13   7  11   0
-  13   9   6  13  11  13
-   7   9  15  12   9  63 <- 押したキー
+  64  68  47  41  41  32
+  40  38  40  39  28  60
+  27  52  39  46  43 282 <- 押したキー
 ```
 
 キーを押したときに文字が入力されて邪魔な場合は何の文字も入力されない keymap を用意しているので一度そちらに firmware を焼き直してみてください。
@@ -281,7 +291,7 @@ Listening:
 make miniec:blank:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.0 ./docker_build.sh miniec:blank:flash
+QMK_VERSION=0.23.2 ./docker_build.sh miniec:blank:flash
 ```
 
 ### トラブルシューティング
