@@ -34,8 +34,6 @@
 #include "quantum.h"
 
 #include "analog.h"
-// #include "print.h"
-// #include "quantum.h"
 
 // sensing channel definitions
 #define S0 0
@@ -46,115 +44,6 @@
 #define S5 5
 #define S6 6
 #define S7 7
-
-#define ROWS_PER_HAND (MATRIX_ROWS/2)
-#define KEY_NUM (MATRIX_COLS*ROWS_PER_HAND)
-#define KEY2CR(K,C,R) {(C)=(K)%MATRIX_COLS;(R)=(K)/MATRIX_COLS;}
-#define VAL2THRESHOLD(VAL) (((VAL)>=1024) ? 255 : (VAL/4))
-#define PI ((float)3.1415926535)
-#define CALIBRATE_BUF 5
-#define CALIBRATE_INI 20
-#define CALIBRATE_FREQ_MS 10000
-#define DEFAULT_THRESHOLD_DOWN 80
-#define DEFAULT_THRESHOLD_UP 20
-#define DEFAULT_FILTER_Q (1.0/sqrt(2.0))
-#define DEFAULT_SAMPLE_HZ 150.0
-#define DEFAULT_LOWPASS_HZ 1.0
-
-typedef struct{
-    uint8_t threshold;
-    uint8_t buf[CALIBRATE_BUF];
-    uint8_t idx;
-} calibrate_info;
-
-uint8_t key_val[KEY_NUM];
-
-calibrate_info calibrate[KEY_NUM];
-uint32_t last_timer;
-
-/* Filter */
-typedef struct{
-    float a; // Feed forward coefficient
-    float b; // Feedback coefficient
-
-    float input;
-    float output;
-    uint8_t first;
-} filter_info;
-
-filter_info filter[KEY_NUM];
-
-
-// calibration
-void finter_config(filter_info *f, float fc, float q, float fs){
-
-    //fc Digital LPF cutoff frequency
-    //q  Quality factor (1 / sqrt (2) default)
-    //fs Sampling frequency
-
-    float t = 1.0/fs;
-    float c = 1.0*PI*fc;
-    f->b = tan(c*t/2.0)/(1.0+tan(c*t/2.0));
-    f->a = (1.0-tan(c*t/2.0))/(1.0+tan(c*t/2.0));
-    f->first = 1;
-}
-
-float filter_process(filter_info *f, float val){
-    float result;
-    if(f->first){
-        f->input = val;
-        f->output = val;
-        f->first = 0;
-    }
-
-    result = f->b*val + f->b*f->input + f->a*f->output;
-    f->input = val;
-    f->output = result;
-    return result;
-}
-
-/* Spin WAIT */
-void spin_wait(volatile uint32_t time){
-    while(time>0){
-        time--;
-    }
-}
-
-void init_calibrate_info(void){
-    static uint16_t buf[KEY_NUM] = {0};
-    volatile uint32_t tmp = 0;
-    (void)tmp;
-
-    // Ramp-Up
-    for(uint16_t k=0;k<KEY_NUM;k++){
-        uint8_t row, col;
-        KEY2CR(k, row, col);
-        tmp = ecsm_readkey_raw(row, col);
-        // SPIN WAIT(While DISCHARGE COMPLETE)
-        spin_wait(10);
-    }
-
-    // Calibration
-    for(uint16_t i=0;i<CALIBRATE_INI;i++){
-        for(uint16_t k=0;k<KEY_NUM;k++){
-            uint8_t row, col;
-            KEY2CR(k, row, col);
-            buf[k] += ecsm_readkey_raw(row, col);
-            // SPIN WAIT(While DISCHARGE COMPLETE)
-            spin_wait(10);
-        }
-    }
-
-    for(uint16_t k=0;k<KEY_NUM;k++){
-        // Initialize
-        calibrate[k].threshold = VAL2THRESHOLD(buf[k]/CALIBRATE_INI);
-        calibrate[k].idx = 0;
-        // Average
-        for(uint16_t i=0;i<CALIBRATE_BUF;i++){
-            calibrate[k].buf[i] = calibrate[k].threshold;
-        }
-    }
-}
 
 // pin connections
 const uint8_t row_pins[]     = MATRIX_ROW_PINS;
@@ -222,8 +111,6 @@ int ecsm_init(ecsm_config_t const* const ecsm_config) {
     // set discharge pin to charge mode
     setPinInput(DISCHARGE_PIN);
 
-    init_calibrate_info();
-
     return 0;
 }
 
@@ -240,15 +127,15 @@ uint16_t ecsm_readkey_raw(uint8_t row, uint8_t col) {
 
     clear_all_row_pins();
 
-    cli();
+    // cli();
 
     charge_capacitor(row);
 
     sw_value = analogReadPin(ANALOG_PORT);
 
-    sei();
+    // sei();
 
-    return VAL2THRESHOLD(sw_value);
+    return sw_value;
 }
 
 // Update press/release state of key at (row, col)
@@ -262,13 +149,10 @@ bool ecsm_update_key(matrix_row_t* current_row, uint8_t row, uint8_t col, uint16
     }
 
     // release to press
-    uint8_t k = row * (MATRIX_ROWS / 2) + col;
-    if ((!current_state)) {
-        if (sw_value > calibrate[k].threshold + config.high_threshold[row][col]) {
+    if (!current_state) {
+        if (sw_value > config.high_threshold[row][col]) {
             *current_row |= (1 << col);
             return true;
-        } else {
-            filter_process(&filter[k], (float)sw_value);
         }
     }
 

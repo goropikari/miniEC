@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// #define SELECT_SOFT_SERIAL_SPEED 3
+// #define SERIAL_DEBUG
 /*
  * Feature disable options
  *  These options are also useful to firmware size reduction.
@@ -36,29 +38,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_COLS 6
 
 /* EC switch threshold with hysteresis */
-// for sekigon module
-// non reversible
-// #define HIGH_THRESHOLD 45
-// #define LOW_THRESHOLD 25
-
-// reversible left
-// #define HIGH_THRESHOLD 20
-// #define LOW_THRESHOLD 20
-// reversible right
-// #define HIGH_THRESHOLD 60
-// #define LOW_THRESHOLD 40
-
-// for goropikari molude v0.1
-// #define HIGH_THRESHOLD 7
-// #define LOW_THRESHOLD 5
-
-// for goropikari molude v0.2
-// #define HIGH_THRESHOLD 30
-// #define LOW_THRESHOLD 15
-
 // for v1.1.1
-#define HIGH_THRESHOLD 35
-#define LOW_THRESHOLD 25
+#define HIGH_THRESHOLD 130
+#define LOW_THRESHOLD 120
 
 #define TAP_CODE_DELAY 5
 #define TAPPING_TERM 125
@@ -66,13 +48,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
  * Keyboard Matrix Assignments
- *
- * Change this to how you wired your keyboard
- * COLS: AVR pins used for columns, left to right
- * ROWS: AVR pins used for rows, top to bottom
- * DIODE_DIRECTION: COL2ROW = COL = Anode (+), ROW = Cathode (-, marked on diode)
- *                  ROW2COL = ROW = Anode (+), COL = Cathode (-, marked on diode)
- *
  */
 #define MATRIX_ROW_PINS { D4, C6, D7 }
 #define COL_PINS { S1, S0, S3, S5, S7, S2 }
@@ -85,8 +60,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * Split Keyboard specific options, make sure you have 'SPLIT_KEYBOARD = yes' in your rules.mk, and define SOFT_SERIAL_PIN.
  */
 #define SOFT_SERIAL_PIN D2  // or D1, D2, D3, E6
-// #define EE_HANDS
 #define SPLIT_HAND_PIN F4
+// #define EE_HANDS
 // #define MASTER_LEFT
 
 

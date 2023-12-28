@@ -46,7 +46,6 @@ void matrix_init_custom(void) {
 
     split_pre_init();
 
-    // ecsm_config_t ecsm_config = {.low_threshold = LOW_THRESHOLD, .high_threshold = HIGH_THRESHOLD};
     ecsm_config_t ecsm_config;
     for (int r = 0; r < MATRIX_ROWS / 2; r++) {
         for (int c = 0; c < MATRIX_COLS; c++) {
@@ -87,12 +86,14 @@ void matrix_init_custom(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool updated = ecsm_matrix_scan(current_matrix);
 
+#ifdef CONSOLE_ENABLE
     static int cnt = 0;
     if (cnt++ == 300) {
         cnt = 0;
         ecsm_print_matrix();
         print("\n");
     }
+#endif
 
     return updated;
 }

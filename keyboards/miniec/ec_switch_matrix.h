@@ -36,4 +36,3 @@ bool     ecsm_matrix_scan(matrix_row_t current_matrix[]);
 void     ecsm_print_matrix(void);
 uint16_t ecsm_readkey_raw(uint8_t row, uint8_t col);
 bool     ecsm_update_key(matrix_row_t* current_row, uint8_t row, uint8_t col, uint16_t sw_value);
-void     init_calibrate_info(void);

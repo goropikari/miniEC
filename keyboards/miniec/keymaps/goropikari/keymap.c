@@ -43,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_QUOT     , KC_COMM  , KC_DOT   , KC_P                 , KC_Y    ,                KC_F     , KC_G     , KC_C     , KC_R     , KC_L     ,
         KC_A        , KC_O     , KC_E     , KC_U                 , KC_I    ,                KC_D     , KC_H     , KC_T     , KC_N     , KC_S     ,
         KC_SCLN     , KC_Q     , KC_J     , KC_K                 , KC_X    ,                KC_B     , KC_M     , KC_W     , KC_V     , KC_Z     ,
-                          RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL ,                RAI_ENT  , KC_MT_SS , KC_RALT
+                          RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL ,                RAISE    , KC_MT_SS , RALT_T(KC_ENT)
     ),
 
     [_LOWER] = LAYOUT(
@@ -67,3 +67,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 XXXXX     , XXXXX                , XXXXX   ,                 XXXXX   , XXXXX     , XXXXX
     )
 };
+
+
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//   // If console is enabled, it will print the matrix position and status of each key pressed
+// #ifdef CONSOLE_ENABLE
+//     uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+// #endif
+//   return true;
+// }
