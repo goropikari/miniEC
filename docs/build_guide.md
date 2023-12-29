@@ -196,6 +196,9 @@ QMK Firmware は version 0.23.2 を元にしています。公式サイトのド
 #### ローカル環境に構築
 
 ```bash
+sudo apt-get update
+sudo apt-get install -y git python3-pip make gcc-avr binutils-avr avr-libc avrdude vim gcc-arm-none-eabi ripgrep wget libc6-i386 libc6-dev-arm64-cross
+
 git clone --depth 1 --recurse-submodules --shallow-submodules -b v1 https://github.com/goropikari/miniEC
 cd miniEC
 python3 -m venv env
