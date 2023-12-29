@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    image: goropikari/qmkfm:0.23.0
+    image: goropikari/qmkfm:0.23.2
     volumes:
       - /dev:/dev  # マイコンに flash するために mount する
       - ../keyboards:/home/vscode/qmk_firmware/keyboards:cached
