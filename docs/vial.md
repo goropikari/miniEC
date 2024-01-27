@@ -16,7 +16,7 @@ make miniec:vial:flash
 ```bash
 git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
 cd miniEC
-QMK_VERSION=vial-qmk-20231210153557 ./docker_build.sh miniec:vial:flash
+QMK_VERSION=vial-qmk-20240126214337 ./docker_build.sh miniec:vial:flash
 ```
 
 ## QMK Toolbox を使用する場合
