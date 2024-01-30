@@ -10,7 +10,7 @@ jsonschema==4.20.0
 jsonschema-specifications==2023.12.1
 log-symbols==0.0.14
 milc==1.6.8
-Pillow==10.1.0
+Pillow==10.2.0
 Pygments==2.17.2
 pyserial==3.5
 pyusb==1.2.1
