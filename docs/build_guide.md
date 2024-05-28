@@ -190,7 +190,7 @@ PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定し�
 
 以降の動作確認は Linux(Ubuntu 22.04) で行っています。その他の OS をお使いの場合は適宜内容を読み替えてください。
 Windows をお使いの場合は WSL で docker を使い firmware を build した後に生成された hex ファイルを qmk toolbox を使用して firmware を書き込むのが比較的楽だと思います。
-QMK Firmware は version 0.23.2 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.23.2 の Doc](https://github.com/qmk/qmk_firmware/tree/0.23.2/docs) をご参照ください。
+QMK Firmware は version 0.24.11 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.24.11 の Doc](https://github.com/qmk/qmk_firmware/tree/0.24.11/docs) をご参照ください。
 
 ### QMK Firmware 環境構築
 #### ローカル環境に構築
@@ -211,7 +211,7 @@ cd qmk_firmware
 #### Docker を使う場合
 
 ```bash
-docker pull goropikari/qmkfm:0.23.2
+docker pull goropikari/qmkfm:0.24.11
 git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
 cd miniEC
 ```
@@ -236,12 +236,12 @@ vial 0.7.1 で動作を確認しています。
 make miniec:test:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.2 ./docker_build.sh miniec:test:flash
+QMK_VERSION=0.24.11 ./docker_build.sh miniec:test:flash
 ```
 
 `Waiting for USB serial port - reset your controller now (Ctrl+C to cancel)....` と出たら reset switch を2回押して firmware を書き込んでください。
 
-※ `QMK_VERSION=0.23.2 ./docker_build.sh miniec:test` と `flash` を抜くとコンパイルするだけで終わります。WSL を使用している場合はこちらの方法が推奨です。
+※ `QMK_VERSION=0.24.11 ./docker_build.sh miniec:test` と `flash` を抜くとコンパイルするだけで終わります。WSL を使用している場合はこちらの方法が推奨です。
 
 
 
@@ -256,7 +256,7 @@ QMK_VERSION=0.23.2 ./docker_build.sh miniec:test:flash
 make miniec:default:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.2 ./docker_build.sh miniec:default:flash
+QMK_VERSION=0.24.11 ./docker_build.sh miniec:default:flash
 ```
 
 
@@ -294,7 +294,7 @@ Listening:
 make miniec:blank:flash
 
 # docker を使う場合
-QMK_VERSION=0.23.2 ./docker_build.sh miniec:blank:flash
+QMK_VERSION=0.24.11 ./docker_build.sh miniec:blank:flash
 ```
 
 ### トラブルシューティング
