@@ -44,8 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef MINIEC_WEB_TUNING
 // Two offset bytes for each key on this half.
-#    define EECONFIG_KB_DATA_SIZE (MATRIX_ROWS / 2 * MATRIX_COLS * 2)
-#    define EECONFIG_KB_DATA_VERSION 0x4D450001UL
+#define EECONFIG_KB_DATA_SIZE (MATRIX_ROWS / 2 * MATRIX_COLS * 2)
+#define EECONFIG_KB_DATA_VERSION 0x4D450001UL
 #endif
 
 #define TAP_CODE_DELAY 5

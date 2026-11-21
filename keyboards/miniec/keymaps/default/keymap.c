@@ -20,10 +20,10 @@
 #include "quantum.h"
 
 enum layer_names {
-    _DEFAULT = 0,
-    _LOWER,
-    _RAISE,
-    _ADJUST,
+  _DEFAULT = 0,
+  _LOWER,
+  _RAISE,
+  _ADJUST,
 };
 
 // SandS
@@ -33,10 +33,11 @@ enum layer_names {
 #define KC_CTL_SCLN CTL_T(KC_SCLN)
 #define CTRL_SHFT MT(MOD_LCTL | MOD_LSFT, KC_ESC)
 #define XXXXX KC_NO
-#define LOWER  MO(_LOWER)
-#define RAISE  MO(_RAISE)
+#define LOWER MO(_LOWER)
+#define RAISE MO(_RAISE)
 #define ADJUST MO(_ADJUST)
 
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_DEFAULT] = LAYOUT(
         KC_Q        , KC_W     , KC_E     , KC_R                 , KC_T    ,                KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
@@ -66,3 +67,4 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 XXXXX     , XXXXX                , XXXXX   ,                 XXXXX   , XXXXX     , XXXXX
     )
 };
+// clang-format on

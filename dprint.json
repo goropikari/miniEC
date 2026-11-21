@@ -1,5 +1,18 @@
 {
-  "includes": ["**/*.md"],
-  "excludes": ["vial-qmk/**"],
-  "plugins": ["https://plugins.dprint.dev/markdown-0.29.0.wasm"]
+  "includes": ["**/*.{c,h,html,js,json,md,py,sh,yaml,yml}", "Dockerfile"],
+  "excludes": ["vial-qmk/**", "build/**", "keyboards/miniec/tuning/layout.json"],
+  "clangFormat": {
+    "SortIncludes": "Never"
+  },
+  "plugins": [
+    "https://plugins.dprint.dev/markdown-0.29.0.wasm",
+    "https://plugins.dprint.dev/clang-format-0.3.1.wasm",
+    "https://plugins.dprint.dev/dockerfile-0.8.0.wasm",
+    "https://plugins.dprint.dev/json-0.26.0.wasm",
+    "https://plugins.dprint.dev/ruff-0.12.3.wasm",
+    "https://plugins.dprint.dev/shfmt-0.2.0.wasm",
+    "https://plugins.dprint.dev/typescript-0.101.0.wasm",
+    "https://plugins.dprint.dev/g-plane/markup_fmt-v0.28.0.wasm",
+    "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm"
+  ]
 }
