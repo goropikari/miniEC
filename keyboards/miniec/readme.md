@@ -10,7 +10,7 @@ make build
 
 初回は Docker Hub の `qmkfm/base_container` をベースに、Vial-QMK を含むビルド用イメージを作成します。
 そのコンテナ内で全キーマップを Vial 対応版としてビルドし、配列ごとの `build/miniec_<keymap>.hex` を生成します。
-配列は `blank`、`default`、`dvorak`、`goropikari`、`qwerty`、`test`、`vial` の7種類です。
+配列は `blank`、`default`、`dvorak`、`goropikari`、`qwerty`、`test` の6種類です。
 `blank` はキー割り当てが空の状態から Vial で設定する場合に使い、`test` は動作確認用です。容量に収めるため、`test` では Vial の QMK Settings を無効にしています。測定値のコンソール出力は[ビルドガイドの HID Console 手順](../../docs/build_guide.md#qmk-toolbox-の-hid-console-で測定値を見る)を参照してください。
 1種類だけビルドするときは、リポジトリのルートで `./docker_build.sh miniec:qwerty` のように配列名を指定します。
 コンテナの起動方法は [QMK の docker_cmd.sh](https://github.com/qmk/qmk_firmware/blob/master/util/docker_cmd.sh) を参考にしています。
