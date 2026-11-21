@@ -20,10 +20,10 @@
 #include "quantum.h"
 
 enum layer_names {
-    _DVORAK = 0,
-    _LOWER,
-    _RAISE,
-    _ADJUST,
+  _DVORAK = 0,
+  _LOWER,
+  _RAISE,
+  _ADJUST,
 };
 
 // SandS
@@ -68,3 +68,4 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                               XXXXX     , XXXXX                , XXXXX   ,                 XXXXX   , XXXXX     , XXXXX
   )
 };
+// clang-format on

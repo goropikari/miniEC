@@ -40,12 +40,12 @@
 #include "analog.h"
 
 #ifdef MINIEC_WEB_TUNING
-#    include "eeconfig.h"
-#    ifdef VIAL_ENABLE
-#        include "via.h"
-#    else
-#        include "raw_hid.h"
-#    endif
+#include "eeconfig.h"
+#ifdef VIAL_ENABLE
+#include "via.h"
+#else
+#include "raw_hid.h"
+#endif
 #endif
 
 #define ROWS_PER_HAND (MATRIX_ROWS / 2)
@@ -56,7 +56,9 @@
     (R) = (K) / MATRIX_COLS;                                                   \
   }
 #define CR2KEY(C, R, K)                                                        \
-  { (K) = ((C) % MATRIX_COLS) + (((R) % ROWS_PER_HAND) * MATRIX_COLS); }
+  {                                                                            \
+    (K) = ((C) % MATRIX_COLS) + (((R) % ROWS_PER_HAND) * MATRIX_COLS);         \
+  }
 #define VAL2THRESHOLD(VAL) (((VAL) >= 1024) ? 255 : (VAL / 4))
 
 #define PI ((float)3.1415926535)
@@ -91,15 +93,18 @@ typedef struct {
 } key_offsets_t;
 
 static key_offsets_t key_offsets[KEY_NUM];
-_Static_assert(sizeof(key_offsets) == EECONFIG_KB_DATA_SIZE, "Wrong EEPROM size");
+_Static_assert(sizeof(key_offsets) == EECONFIG_KB_DATA_SIZE,
+               "Wrong EEPROM size");
 
 static bool offsets_valid(uint8_t press, uint8_t release) {
   return release > 0 && release < press && press < UINT8_MAX;
 }
 
-static void read_saved_offsets(key_offsets_t *offsets, uint8_t first, uint8_t count) {
+static void read_saved_offsets(key_offsets_t *offsets, uint8_t first,
+                               uint8_t count) {
   uint8_t length = count * sizeof(*offsets);
-  if (eeconfig_read_kb_datablock(offsets, first * sizeof(*offsets), length) != length) {
+  if (eeconfig_read_kb_datablock(offsets, first * sizeof(*offsets), length) !=
+      length) {
     memset(offsets, 0, length);
   }
   for (uint8_t i = 0; i < count; ++i) {
@@ -114,7 +119,8 @@ static void load_key_offsets(void) {
 }
 
 static bool save_key_offsets(const key_offsets_t *offsets) {
-  return eeconfig_update_kb_datablock(offsets, 0, sizeof(key_offsets)) == sizeof(key_offsets);
+  return eeconfig_update_kb_datablock(offsets, 0, sizeof(key_offsets)) ==
+         sizeof(key_offsets);
 }
 
 enum {
@@ -127,21 +133,26 @@ enum {
 };
 
 #define TUNING_PAGE_KEYS (KEY_NUM / 2)
-_Static_assert(KEY_NUM % 2 == 0 && TUNING_PAGE_KEYS * sizeof(key_offsets_t) <= 25, "Invalid tuning page size");
+_Static_assert(KEY_NUM % 2 == 0 &&
+                   TUNING_PAGE_KEYS * sizeof(key_offsets_t) <= 25,
+               "Invalid tuning page size");
 
 static key_offsets_t restore_offsets[KEY_NUM];
 static bool restore_pending;
 static uint8_t restore_next_id;
 
-static bool restore_page(uint8_t first, uint8_t request_id, const uint8_t *pairs) {
+static bool restore_page(uint8_t first, uint8_t request_id,
+                         const uint8_t *pairs) {
   bool last = first == TUNING_PAGE_KEYS;
   bool expected = restore_pending && request_id == restore_next_id;
   restore_pending = false;
-  if (first != 0 && (!last || !expected)) return false;
+  if (first != 0 && (!last || !expected))
+    return false;
 
   for (uint8_t i = 0; i < TUNING_PAGE_KEYS; ++i) {
     key_offsets_t offsets = {pairs[i * 2], pairs[i * 2 + 1]};
-    if (!offsets_valid(offsets.press, offsets.release)) return false;
+    if (!offsets_valid(offsets.press, offsets.release))
+      return false;
     restore_offsets[first + i] = offsets;
   }
   if (!last) {
@@ -150,13 +161,15 @@ static bool restore_page(uint8_t first, uint8_t request_id, const uint8_t *pairs
     return true;
   }
   // Do not change live offsets until both validated pages have been saved.
-  if (!save_key_offsets(restore_offsets)) return false;
+  if (!save_key_offsets(restore_offsets))
+    return false;
   memcpy(key_offsets, restore_offsets, sizeof(key_offsets));
   return true;
 }
 
 static bool handle_tuning_report(uint8_t *data, uint8_t length) {
-  // Header: 'M', 'E', protocol version, command, request ID. Reply: status at byte 5.
+  // Header: 'M', 'E', protocol version, command, request ID. Reply: status at
+  // byte 5.
   if (length != 32 || data[0] != 'M' || data[1] != 'E' || data[2] != 1) {
     return false;
   }
@@ -172,47 +185,49 @@ static bool handle_tuning_report(uint8_t *data, uint8_t length) {
   }
   memset(data + 5, 0, length - 5);
   switch (data[3]) {
-    case TUNING_INFO:
-      data[6] = is_keyboard_left() ? 0 : 1;
-      data[7] = ROWS_PER_HAND;
-      data[8] = MATRIX_COLS;
-      data[9] = HIGH_THRESHOLD;
-      data[10] = LOW_THRESHOLD;
-      data[11] = TUNING_PAGE_KEYS;  // Nonzero when backup and restore are supported.
-      break;
-    case TUNING_APPLY:
-    case TUNING_READ:
-      if (key >= KEY_NUM || (data[3] == TUNING_APPLY && !offsets_valid(press, release))) {
-        data[5] = 1;
-        break;
-      }
-      if (data[3] == TUNING_APPLY) {
-        key_offsets[key] = (key_offsets_t){press, release};
-      }
-      data[6] = ecsm_sw_value[key / MATRIX_COLS][key % MATRIX_COLS];
-      data[7] = calibrate[key].threshold;
-      data[8] = key_offsets[key].press;
-      data[9] = key_offsets[key].release;
-      break;
-    case TUNING_SAVE:
-      data[5] = !save_key_offsets(key_offsets);
-      break;
-    case TUNING_READ_SAVED: {
-      if (key != 0 && key != TUNING_PAGE_KEYS) {
-        data[5] = 1;
-        break;
-      }
-      key_offsets_t page[TUNING_PAGE_KEYS];
-      read_saved_offsets(page, key, TUNING_PAGE_KEYS);
-      memcpy(data + 6, page, sizeof(page));
-      break;
-    }
-    case TUNING_RESTORE:
-      data[5] = !restore_ok;
-      break;
-    default:
+  case TUNING_INFO:
+    data[6] = is_keyboard_left() ? 0 : 1;
+    data[7] = ROWS_PER_HAND;
+    data[8] = MATRIX_COLS;
+    data[9] = HIGH_THRESHOLD;
+    data[10] = LOW_THRESHOLD;
+    data[11] =
+        TUNING_PAGE_KEYS; // Nonzero when backup and restore are supported.
+    break;
+  case TUNING_APPLY:
+  case TUNING_READ:
+    if (key >= KEY_NUM ||
+        (data[3] == TUNING_APPLY && !offsets_valid(press, release))) {
       data[5] = 1;
       break;
+    }
+    if (data[3] == TUNING_APPLY) {
+      key_offsets[key] = (key_offsets_t){press, release};
+    }
+    data[6] = ecsm_sw_value[key / MATRIX_COLS][key % MATRIX_COLS];
+    data[7] = calibrate[key].threshold;
+    data[8] = key_offsets[key].press;
+    data[9] = key_offsets[key].release;
+    break;
+  case TUNING_SAVE:
+    data[5] = !save_key_offsets(key_offsets);
+    break;
+  case TUNING_READ_SAVED: {
+    if (key != 0 && key != TUNING_PAGE_KEYS) {
+      data[5] = 1;
+      break;
+    }
+    key_offsets_t page[TUNING_PAGE_KEYS];
+    read_saved_offsets(page, key, TUNING_PAGE_KEYS);
+    memcpy(data + 6, page, sizeof(page));
+    break;
+  }
+  case TUNING_RESTORE:
+    data[5] = !restore_ok;
+    break;
+  default:
+    data[5] = 1;
+    break;
   }
   // VIA may echo a request while Vial is unlocking. Only mark handled replies.
   data[31] = 0xA5;
@@ -289,7 +304,9 @@ float filter_process(filter_info *f, float val) {
   return result;
 }
 
-static inline void discharge_capacitor(void) { gpio_set_pin_output(DISCHARGE_PIN); }
+static inline void discharge_capacitor(void) {
+  gpio_set_pin_output(DISCHARGE_PIN);
+}
 
 static inline void charge_capacitor(uint8_t row) {
   gpio_set_pin_input(DISCHARGE_PIN);
@@ -421,9 +438,9 @@ bool ecsm_matrix_scan(matrix_row_t current_matrix[]) {
     // Timer Update
     last_timer = timer_now;
     for (uint16_t k = 0; k < KEY_NUM; k++) {
-      // The filter already uses ADC/4 units. Round to avoid bias from truncation.
-      calibrate[k].buf[calibrate[k].idx] =
-          (uint8_t)(filter[k].output + 0.5f);
+      // The filter already uses ADC/4 units. Round to avoid bias from
+      // truncation.
+      calibrate[k].buf[calibrate[k].idx] = (uint8_t)(filter[k].output + 0.5f);
       calibrate[k].idx = (calibrate[k].idx + 1) % CALIBRATE_BUF;
 
       // Average
@@ -508,13 +525,9 @@ void init_calibrate_info(void) {
   }
 }
 
-void keyboard_post_init_kb() {
-    keyboard_post_init_user();
-}
+void keyboard_post_init_kb() { keyboard_post_init_user(); }
 
-void keyboard_pre_init_kb(void) {
-    keyboard_pre_init_user();
-}
+void keyboard_pre_init_kb(void) { keyboard_pre_init_user(); }
 
 void matrix_init_custom(void) {
   // Turn off LED on ProMicro
@@ -542,14 +555,14 @@ void matrix_init_custom(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
   bool updated = ecsm_matrix_scan(current_matrix);
 
-  #ifdef CONSOLE_ENABLE
-    static int cnt = 0;
-    if (cnt++ == 300) {
-      print("\033[2J\033[H");
-      cnt = 0;
-      ecsm_print_matrix();
-    }
-  #endif
+#ifdef CONSOLE_ENABLE
+  static int cnt = 0;
+  if (cnt++ == 300) {
+    print("\033[2J\033[H");
+    cnt = 0;
+    ecsm_print_matrix();
+  }
+#endif
 
   return updated;
 }

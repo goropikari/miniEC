@@ -20,10 +20,10 @@
 #include "quantum.h"
 
 enum layer_names {
-    _DVORAK = 0,
-    _LOWER,
-    _RAISE,
-    _ADJUST,
+  _DVORAK = 0,
+  _LOWER,
+  _RAISE,
+  _ADJUST,
 };
 
 // SandS

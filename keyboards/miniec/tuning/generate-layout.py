@@ -7,4 +7,6 @@ directory = Path(__file__).resolve().parent
 keyboard = json.loads((directory.parent / "keyboard.json").read_text(encoding="utf-8"))
 layout = keyboard["layouts"]["LAYOUT"]["layout"]
 lines = [json.dumps(key, separators=(",", ":")) for key in layout]
-(directory / "layout.json").write_text("[\n  " + ",\n  ".join(lines) + "\n]\n", encoding="utf-8")
+(directory / "layout.json").write_text(
+    "[\n  " + ",\n  ".join(lines) + "\n]\n", encoding="utf-8"
+)

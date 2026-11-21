@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/deploy-tuning.yml'
-      - 'keyboards/miniec/tuning/**'
+      - ".github/workflows/deploy-tuning.yml"
+      - "keyboards/miniec/tuning/**"
   workflow_dispatch:
 
 permissions: {}

@@ -252,9 +252,11 @@ function renderLayout(layout, side, rows, columns) {
 }
 
 element("connect").addEventListener("click", () => run(async () => {
-  const [chosen] = await hid.requestDevice({ filters: [
-    { vendorId: 0xfeed, productId: 0x0012, usagePage: 0xff60, usage: 0x61 }
-  ] });
+  const [chosen] = await hid.requestDevice({
+    filters: [
+      { vendorId: 0xfeed, productId: 0x0012, usagePage: 0xff60, usage: 0x61 },
+    ],
+  });
   if (!chosen) return;
   element("connect").disabled = true;
   device = chosen;
@@ -285,8 +287,12 @@ element("connect").addEventListener("click", () => run(async () => {
       const index = pollCount++ % 2 === 0 ? selected : activeKeys[nextKey++ % activeKeys.length];
       poll = request(commands.read, index)
         .then((data) => render(index, data))
-        .catch((error) => { if (device) status.textContent = error.message; })
-        .finally(() => { poll = undefined; });
+        .catch((error) => {
+          if (device) status.textContent = error.message;
+        })
+        .finally(() => {
+          poll = undefined;
+        });
     }, 30);
   } catch (error) {
     forgetDevice();
@@ -315,7 +321,9 @@ async function applyOffsets(down, up, allKeys = false) {
     }
   } catch (error) {
     if (!allKeys) throw error;
-    throw new Error(`一括適用が中断しました。反映を確認できたキーは ${applied}/${indices.length} 個です。${error.message} 接続を確認してから、もう一度適用してください。`);
+    throw new Error(
+      `一括適用が中断しました。反映を確認できたキーは ${applied}/${indices.length} 個です。${error.message} 接続を確認してから、もう一度適用してください。`,
+    );
   }
   const target = allKeys ? `接続中の側の全${applied}キー` : "選んだキー";
   status.textContent = `${target}に反映しました。電源を切る前に保存してください。`;
@@ -342,7 +350,9 @@ function recommendedOffsets(baseline) {
   const up = idleRange.max + Math.floor(gap / 3) - baseline;
   const down = idleRange.max + Math.ceil(gap * 2 / 3) - baseline;
   if (up < 1 || down > 254) {
-    throw new Error("基準値に対して有効なオフセットを設定できません。キーを離したままUSBを抜き差しし、測り直してください。");
+    throw new Error(
+      "基準値に対して有効なオフセットを設定できません。キーを離したままUSBを抜き差しし、測り直してください。",
+    );
   }
   return { down, up };
 }
@@ -352,7 +362,9 @@ async function measureKey(pressed) {
   applyRecommended.disabled = measureIdle.disabled = measurePressed.disabled = true;
   pressedRange = undefined;
   if (!pressed) idleRange = undefined;
-  measurementStatus.textContent = pressed ? "測定中。キーを押したままにしてください。" : "測定中。キーには触れないでください。";
+  measurementStatus.textContent = pressed
+    ? "測定中。キーを押したままにしてください。"
+    : "測定中。キーには触れないでください。";
   try {
     const samples = [];
     let baseline;
@@ -448,10 +460,12 @@ async function readSavedOffsets() {
 }
 
 function validateBackup(backup) {
-  if (backup?.format !== "miniec-thresholds" || backup.version !== 1 ||
-      backup.rows !== info[1] || backup.columns !== info[2] ||
-      !Array.isArray(backup.offsets) || backup.offsets.length !== info[1] * info[2] ||
-      !backup.offsets.every((pair) => validOffsets(pair?.press, pair?.release))) {
+  if (
+    backup?.format !== "miniec-thresholds" || backup.version !== 1
+    || backup.rows !== info[1] || backup.columns !== info[2]
+    || !Array.isArray(backup.offsets) || backup.offsets.length !== info[1] * info[2]
+    || !backup.offsets.every((pair) => validOffsets(pair?.press, pair?.release))
+  ) {
     throw new Error("miniEC の有効なバックアップファイルを選んでください。");
   }
   if (backup.side !== connectedSide()) {
@@ -507,13 +521,25 @@ restoreButton.addEventListener("click", () => runBackup(async () => {
   validateBackup(backup);
   backupStatus.textContent = "設定を復元しています。";
   const pageKeys = info[5];
-  await request(commands.restore, 0, ...backup.offsets.slice(0, pageKeys).flatMap((pair) => [pair.press, pair.release]));
+  await request(
+    commands.restore,
+    0,
+    ...backup.offsets.slice(0, pageKeys).flatMap((pair) => [pair.press, pair.release]),
+  );
   try {
-    await request(commands.restore, pageKeys, ...backup.offsets.slice(pageKeys).flatMap((pair) => [pair.press, pair.release]));
+    await request(
+      commands.restore,
+      pageKeys,
+      ...backup.offsets.slice(pageKeys).flatMap((pair) => [pair.press, pair.release]),
+    );
     unsaved = false;
     const saved = await readSavedOffsets();
-    if (saved.some((pair, index) => pair.press !== backup.offsets[index].press ||
-                                  pair.release !== backup.offsets[index].release)) {
+    if (
+      saved.some((pair, index) =>
+        pair.press !== backup.offsets[index].press
+        || pair.release !== backup.offsets[index].release
+      )
+    ) {
       throw new Error();
     }
   } catch {
@@ -533,5 +559,6 @@ if (hid) {
   });
 } else {
   element("connect").disabled = true;
-  status.textContent = "デスクトップ版の Chrome または Edge で、このページを HTTPS または localhost から開いてください。";
+  status.textContent =
+    "デスクトップ版の Chrome または Edge で、このページを HTTPS または localhost から開いてください。";
 }

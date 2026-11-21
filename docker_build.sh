@@ -37,15 +37,14 @@ if [ -z "$RUNTIME" ]; then
 	fi
 fi
 
-
 # Determine arguments
 if [ $# -eq 0 ]; then
 	printf "keyboard=" && read -r keyboard
 	[ -n "$keyboard" ] && printf "keymap=" && read -r keymap
-	[ -n "$keymap"   ] && printf "target=" && read -r target
+	[ -n "$keymap" ] && printf "target=" && read -r target
 else
 	IFS=':' read -r keyboard keymap target x <<-EOF
-	$1
+		$1
 	EOF
 	if [ -n "$x" ]; then
 		errcho "$USAGE"
