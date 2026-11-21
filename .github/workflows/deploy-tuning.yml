@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/miniec-web-tuning
     paths:
       - '.github/workflows/deploy-tuning.yml'
       - 'keyboards/miniec/tuning/**'
