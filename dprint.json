@@ -1,6 +1,6 @@
 {
   "includes": ["**/*.{c,h,html,js,json,md,py,sh,yaml,yml}", "Dockerfile"],
-  "excludes": ["vial-qmk/**", "build/**", "keyboards/miniec/tuning/layout.json"],
+  "excludes": ["build/**", "keyboards/miniec/tuning/layout.json"],
   "clangFormat": {
     "SortIncludes": "Never"
   },
