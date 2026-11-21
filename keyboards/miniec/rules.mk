@@ -1,4 +1,3 @@
-# This file intentionally left blank
 # MCU name
 MCU = atmega32u4
 
@@ -11,4 +10,7 @@ SPLIT_KEYBOARD = yes
 # DEBOUNCE_TYPE = sym_eager_pk
 ANALOG_DRIVER_REQUIRED = yes
 
-SRC += ec_switch_matrix.c matrix.c
+SRC += matrix.c
+
+OPT_DEFS += -DMINIEC_WEB_TUNING
+LTO_ENABLE = yes

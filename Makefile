@@ -1,4 +1,5 @@
-.PHONY: build
-build:
-	QMK_VERSION=0.24.11 ./docker_build.sh miniec
-	QMK_VERSION=vial-latest ./docker_build.sh miniec:vial
+.PHONY: build build-calibration
+build: build-calibration
+
+build-calibration:
+	./docker_build.sh miniec:all

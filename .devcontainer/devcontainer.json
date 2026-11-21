@@ -4,7 +4,7 @@
 	"name": "qmk",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
-	"workspaceFolder": "/home/vscode/qmk_firmware",
+	"workspaceFolder": "/home/vscode/vial-qmk",
 	"shutdownAction": "stopCompose",
 	"remoteUser": "vscode",
 	"customizations": {

@@ -1,11 +1,12 @@
 version: '3'
 services:
   app:
-    image: goropikari/qmkfm:0.23.2
+    build: .
+    image: miniec-vial
     volumes:
       - /dev:/dev  # マイコンに flash するために mount する
-      - ../keyboards:/home/vscode/qmk_firmware/keyboards:cached
-      - ../build:/home/vscode/qmk_firmware/.build:cached
+      - ../keyboards:/home/vscode/vial-qmk/keyboards:cached
+      - ../build:/home/vscode/vial-qmk/.build:cached
       - ../:/home/vscode/miniEC
     privileged: true
     cap_add:

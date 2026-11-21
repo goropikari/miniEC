@@ -1,7 +1,7 @@
 {
     "name": "miniEC",
     "vendorId": "0xFEED",
-    "productId": "0x0001",
+    "productId": "0x0012",
     "matrix": {
       "rows": 6,
       "cols": 6

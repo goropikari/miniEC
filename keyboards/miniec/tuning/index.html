@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>miniEC 閾値調整</title>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { margin: 0 auto; padding: 2rem 1rem; max-width: 42rem; }
+  h1 { margin-top: 0; }
+  p { line-height: 1.6; }
+  fieldset { border: 1px solid GrayText; border-radius: .6rem; margin: 1rem 0; padding: 1rem; }
+  .layout-scroll { overflow-x: auto; padding: .2rem; }
+  .grid { position: relative; --key-unit: clamp(2.1rem, 6vw, 2.6rem); }
+  button, input, select { font: inherit; padding: .4rem; }
+  .grid button {
+    position: absolute;
+    box-sizing: border-box;
+    width: calc(var(--key-unit) * .94);
+    height: calc(var(--key-unit) * .94);
+    padding: 0;
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .grid button:disabled { opacity: .55; }
+  [aria-pressed="true"] { outline: 3px solid #1379db; outline-offset: -3px; }
+  .controls { display: flex; flex-wrap: wrap; gap: .65rem; align-items: end; }
+  .offset-fields { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+  label { display: grid; gap: .3rem; }
+  .hint { font-size: .9rem; margin-block: .35rem .65rem; }
+  details { margin-block: .75rem 1rem; }
+  summary { cursor: pointer; }
+  input[type="number"] { width: 5rem; }
+  input[type="file"] { max-width: 100%; }
+  output { font-variant-numeric: tabular-nums; }
+</style>
+<main>
+  <h1>miniEC 閾値調整</h1>
+  <p>USB で接続した側のキーを配置図から選び、感度を調整します。</p>
+  <div class="controls">
+    <button id="connect">miniEC に接続</button>
+    <label>キーの表示
+      <select id="key-label-mode">
+        <option value="sample">測定値</option>
+        <option value="position">行・列番号</option>
+      </select>
+    </label>
+  </div>
+  <p id="status" role="status">未接続</p>
+  <fieldset id="settings" disabled>
+    <legend id="side">キー選択</legend>
+    <div class="layout-scroll"><div id="keys" class="grid"></div></div>
+    <p>測定値 <output id="sample">—</output> ／ 基準値 <output id="baseline">—</output></p>
+    <p class="hint">基準値はキーを離したときの目安です。オフセットは、基準値に足す値です。</p>
+    <p id="thresholds">—</p>
+    <details>
+      <summary>測定して推奨値を出す</summary>
+      <ol>
+        <li>選んだキーから指を離し、「離した値を測る」を押します。</li>
+        <li>同じキーを反応させたい深さまで押したまま、マウスで「押した値を測る」を押し、測定が終わるまで保持します。</li>
+        <li>推奨値を適用して打鍵を試し、よければページ下の「この側の設定を保存」を押します。</li>
+      </ol>
+      <div class="controls">
+        <button type="button" id="measure-idle">離した値を測る</button>
+        <button type="button" id="measure-pressed" disabled>押した値を測る</button>
+        <button type="button" id="apply-recommended" disabled>推奨値を適用</button>
+      </div>
+      <p class="hint" id="measurement-status" role="status">まず、キーを離した状態を測ります。</p>
+    </details>
+    <form id="offsets">
+      <div class="offset-fields">
+        <div>
+          <label for="press">押下オフセット</label>
+          <p class="hint" id="press-help">押し始めて、どれだけ値が上がると反応するか。<strong>小さくすると浅く押しても反応します。</strong></p>
+          <input id="press" type="number" required min="2" max="254" step="1" aria-describedby="press-help offset-rule">
+        </div>
+        <div>
+          <label for="release">解放オフセット</label>
+          <p class="hint" id="release-help">押したあと、どこまで値が下がると離した扱いになるか。<strong>大きくすると少し戻しただけで解放します。</strong></p>
+          <input id="release" type="number" required min="1" max="253" step="1" aria-describedby="release-help offset-rule">
+        </div>
+      </div>
+      <p class="hint" id="offset-rule">解放は1以上、押下より小さくします。押下は254以下です。2つの値に差を付けると、測定値が少し揺れても判定が切り替わりにくくなります。</p>
+      <div class="controls">
+        <button type="submit">適用</button>
+        <button type="button" id="defaults">標準値に戻す</button>
+      </div>
+    </form>
+    <details>
+      <summary>判定の例</summary>
+      <p>基準値が10で、押下35・解放20なら、測定値が <strong>46以上</strong>で押下、押したあとは <strong>29以下</strong>で解放です。30〜45では直前の状態を保ちます。</p>
+    </details>
+    <p>値は少しずつ変え、「適用」を押して打鍵を試します。よければ保存します。</p>
+    <button id="save">この側の設定を保存</button>
+    <p class="hint">「適用」と「標準値に戻す」は選んだキーにすぐ反映します。電源を切ったあとも残すには保存します。</p>
+    <details>
+      <summary>閾値のバックアップ・復元</summary>
+      <p class="hint">保存済みの押下・解放オフセットを、USB でつないだ側の全キー分まとめて扱います。</p>
+      <fieldset id="backup-settings" disabled>
+        <legend>接続した側の設定</legend>
+        <button type="button" id="backup">保存済みの設定をダウンロード</button>
+        <label for="backup-file">復元する JSON ファイル</label>
+        <input id="backup-file" type="file" accept=".json,application/json">
+        <p class="hint">復元すると、この側の現在の値と保存済みの値が置き換わります。</p>
+        <button type="button" id="restore" disabled>この側に復元</button>
+      </fieldset>
+      <p class="hint" id="backup-status" role="status"></p>
+    </details>
+  </fieldset>
+</main>
+<script type="module" src="tuning.js"></script>
+</html>

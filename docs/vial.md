@@ -1,23 +1,11 @@
-vial 対応は試験的です。今後もサポートするかは未定です。
-[vial 0.7.1](https://github.com/vial-kb/vial-gui/releases/tag/v0.7.1) で動作を確認しています。
+# Vial 対応ファームウェア
 
+miniEC の全キーマップは Vial に対応しています。ビルド済みの HEX は
+[GitHub Releases](https://github.com/goropikari/miniEC/releases) の Assets から入手できます。
+配列名に合った `miniec_<keymap>.hex` を選んでください。
 
-## ローカルで flash する場合
-```bash
-git clone --depth 1 --recurse-submodules --shallow-submodules -b v1 https://github.com/goropikari/miniEC
-cd miniEC
-python3 -m pip install -r requirements-vial.txt
-ln -s $(pwd)/keyboards/miniec vial-qmk/keyboards/miniec
-cd vial-qmk
-make miniec:vial:flash
-```
+自分でビルドする場合は、リポジトリのルートで `make build` を実行します。
+Vial-QMK と Python の依存関係は Docker イメージ内で準備されます。
 
-## Docker を使用する場合
-```bash
-git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
-cd miniEC
-QMK_VERSION=vial-latest ./docker_build.sh miniec:vial:flash
-```
-
-## QMK Toolbox を使用する場合
-[build/miniec_vial.hex](../build/miniec_vial.hex) を [qmk toolbox](https://github.com/qmk/qmk_toolbox) 使用して flash することも出来ます。
+HEX の書き込み、Vial でのロック解除、ブラウザでの閾値調整は
+[キャリブレーション版の手順](../keyboards/miniec/readme.md)を参照してください。

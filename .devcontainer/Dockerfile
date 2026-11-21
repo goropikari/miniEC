@@ -1,23 +1,24 @@
-FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
+FROM qmkfm/base_container:latest
 
-ARG REMOTE_USER=vscode
-ARG QMK_VERSION=0.23.0
+ARG VIAL_REVISION=dd43959ae5c08d8a28d38a1acf7b04e86b14a344
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git python3-pip make gcc-avr binutils-avr avr-libc avrdude vim gcc-arm-none-eabi ripgrep wget libc6-i386 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc-avr avr-libc avrdude python3-venv \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN cd /usr/bin/ && \
-    wget https://www.pjrc.com/teensy/hid_listen && \
-    chmod +x hid_listen
+RUN useradd --create-home --shell /bin/bash vscode \
+    && git init /home/vscode/vial-qmk \
+    && git -C /home/vscode/vial-qmk fetch --depth 1 https://github.com/vial-kb/vial-qmk.git "$VIAL_REVISION" \
+    && git -C /home/vscode/vial-qmk checkout --detach FETCH_HEAD \
+    && git -C /home/vscode/vial-qmk remote add origin https://github.com/vial-kb/vial-qmk.git \
+    && git -C /home/vscode/vial-qmk submodule update --init --depth 1 lib/lufa \
+    && python3 -m venv /opt/qmk \
+    && /opt/qmk/bin/pip install --no-cache-dir qmk -r /home/vscode/vial-qmk/requirements.txt \
+    && chown -R vscode:vscode /home/vscode/vial-qmk \
+    && chmod 1777 /home/vscode/vial-qmk \
+    && git config --system --add safe.directory /home/vscode/vial-qmk
 
-WORKDIR /home/vscode
+ENV PATH="/opt/qmk/bin:${PATH}"
+ENV QMK_HOME=/home/vscode/vial-qmk
+WORKDIR /home/vscode/vial-qmk
 USER vscode
-ENV PATH=$PATH:/home/vscode/.local/bin
-RUN python3 -m pip install qmk
-
-RUN git clone -b $QMK_VERSION --recurse-submodules https://github.com/qmk/qmk_firmware.git
-
-WORKDIR /home/vscode/qmk_firmware

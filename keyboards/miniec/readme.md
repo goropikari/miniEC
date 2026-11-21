@@ -1,27 +1,78 @@
-# miniec
+# miniEC キャリブレーション版
 
-![miniec](imgur.com image replace me!)
+## Docker でビルドする
 
-*A short description of the keyboard/project*
+リポジトリのルートから実行します。
 
-* Keyboard Maintainer: [goropikari](https://github.com/goropikari)
-* Hardware Supported: *The PCBs, controllers supported*
-* Hardware Availability: *Links to where you can find this hardware*
+```sh
+make build-calibration
+```
 
-Make example for this keyboard (after setting up your build environment):
+初回は Docker Hub の `qmkfm/base_container` をベースに、Vial-QMK を含むビルド用イメージを作成します。
+そのコンテナ内で全キーマップを Vial 対応版としてビルドし、配列ごとの `build/miniec_<keymap>.hex` を生成します。
+配列は `blank`、`default`、`dvorak`、`goropikari`、`qwerty`、`test`、`vial` の7種類です。
+`blank` はキー割り当てが空の状態から Vial で設定する場合に使い、`test` はコンソール出力を含む動作確認用です。容量に収めるため、`test` では Vial の QMK Settings を無効にしています。
+1種類だけビルドするときは、リポジトリのルートで `./docker_build.sh miniec:qwerty` のように配列名を指定します。
+コンテナの起動方法は [QMK の docker_cmd.sh](https://github.com/qmk/qmk_firmware/blob/master/util/docker_cmd.sh) を参考にしています。
 
-    make miniec:default
+## ブラウザで閾値を調整する
 
-Flashing example for this keyboard:
+### 準備と接続
 
-    make miniec:default:flash
+1. [GitHub Releases](https://github.com/goropikari/miniEC/releases) の Assets から使いたい配列の HEX（例 `miniec_qwerty.hex`）を入手するか、上の手順でビルドします。以前の Vial 版を使っている場合は、更新前に Vial でキーマップを保存してください。
+2. QMK Toolbox で HEX を左右それぞれに書き込みます。Vial を閉じ、調整したい側を PC に直接 USB 接続します。電源を外してから分割ケーブルを抜き差ししてください。
+3. PC 上のリポジトリのルートで、次のコマンドを実行します。調整中はこのターミナルを開いたままにします。
 
-See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+   ```sh
+   python3 -m http.server 8000 --bind 127.0.0.1 --directory keyboards/miniec/tuning
+   ```
 
-## Bootloader
+4. デスクトップ版 Chrome または Edge で <http://localhost:8000/> を開きます。「miniEC に接続」を押し、ブラウザの一覧から miniEC を選びます。画面に表示される「左側」「右側」で接続した側を確認できます。
 
-Enter the bootloader in 3 ways:
+### キーを調整して保存する
 
-* **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
-* **Physical reset button**: Briefly press the button on the back of the PCB - some may have pads you must short instead
-* **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+1. 「キーの表示」で「測定値」と「行・列番号（例 1–1）」を切り替えられます。測定値モードでは、USB で接続した側の各キーに現在の値が表示されます。キーを一つ押して数字が変わる位置を確認し、調整したいキーを選びます。反対側の測定値を見るときは、そちらを USB に接続します。
+2. キーを離した状態と押した状態で「測定値」を見比べます。「基準値」は、ファームウェアが推定したそのキーの未押下時の値です。どちらも ADC 生値を4で割った整数（0〜255）です。
+3. 「押下オフセット」と「解放オフセット」を入力して「適用」を押します。浅く押して反応させたい場合は押下オフセットを少し下げ、離したときにきちんと解放されるかも試します。誤入力が出る場合はオフセットを戻し、表示された解放閾値が未押下時の測定値の揺れより上にあるか確認します。
+4. 問題なく打てたら「この側の設定を保存」を押します。「適用」はそのキーにすぐ反映し、「保存」はその側の適用済み設定を EEPROM に書き込みます。保存前に電源を切ると、前回保存した設定に戻ります。
+5. 反対側を調整する場合は、その側をUSBに接続して同じ手順を繰り返します。
+
+### 測定値から推奨値を出す
+
+1. キーを選び、「測定して推奨値を出す」を開きます。キーから指を離し、「離した値を測る」を押します。
+2. 同じキーを反応させたい深さで押したまま「押した値を測る」を押し、測定が終わるまで保持します。
+3. 「推奨値を適用」を押して打鍵を試し、よければ「この側の設定を保存」を押します。
+
+各状態を20回測定します。離したときの最大値と押したときの最小値の間に、余裕を持たせて解放・押下の判定値を置きます。差が小さいときは推奨値を出しません。押し込みの深さを一定にして測り直してください。別のキーを選ぶと測定はやり直しになります。
+
+### オフセットの読み方
+
+設定範囲は `1 ≤ 解放オフセット < 押下オフセット ≤ 254` です。押下と解放の閾値に差を設けることで、境目で測定値が少し揺れても押下と解放が何度も切り替わりにくくなります。
+
+たとえば基準値が10のキーに押下35・解放20を設定すると、測定値が **46以上** で押下、**29以下** で解放になります。30〜45では直前の状態を維持します。基準値は使用中も更新されるので、現在の判定値は画面の「適用中の判定」で確認できます。
+
+「標準値に戻す」を押すと、選んだキーに押下35・解放30がすぐ反映されます。電源を切ったあとも残すには「この側の設定を保存」を押します。
+
+### 閾値のバックアップ・復元
+
+バックアップ・復元に対応した HEX を左右に書き込み、ブラウザと USB で接続します。既存の閾値を残して更新する場合は、キーを押しながら接続する Bootmagic ではなく、マイコンの物理リセットで書き込みモードに入ります。EEPROM の消去は行わないでください。
+
+- バックアップするには、「閾値のバックアップ・復元」を開き、「保存済みの設定をダウンロード」を押します。ファイルは左側なら `miniec-thresholds-left.json`、右側なら `miniec-thresholds-right.json` です。画面で適用しただけの値を含めたい場合は、先に保存してください。
+- 復元するには、同じ側の JSON ファイルを選んで「この側に復元」を押します。その側の全キーの押下・解放オフセットが適用され、EEPROM に保存されます。
+- 左右は別々に操作します。基準値はファームウェアが起動時に測るため、バックアップには含まれません。
+
+### 接続できないとき
+
+- 「キー配置を読み込めません」と表示される場合は、サーバーを起動し直してブラウザを再読み込みします。起動コマンドの `--directory` が `keyboards/miniec/tuning` になっているか確認してください。
+- ブラウザにデバイスが出ない場合は、Chrome または Edge で `localhost:8000/` を開いているか確認し、USB データ通信に対応したケーブルでつなぎ直します。
+- デバイスを選べても応答がない場合は、Vial を閉じ、上の手順で生成・配布されたキャリブレーション対応の HEX を書き込んでいるか確認します。
+
+Vial では同じファームウェアでキーマップを変更できます。Vial が求めるロック解除には、左側のマトリクス座標 (0, 0) と (2, 4) のキーを使います。
+
+### 配置を更新するとき
+
+画面で使う配置の元データは `keyboard.json` の `layouts.LAYOUT.layout` です。座標を変更したら、配信用の `tuning/layout.json` も更新します。
+
+```sh
+python3 keyboards/miniec/tuning/generate-layout.py
+```
