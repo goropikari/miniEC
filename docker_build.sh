@@ -86,10 +86,11 @@ fi
 
 # Run make in the firmware checkout, following QMK util/docker_cmd.sh.
 # The image initializes only LUFA, the submodule used by this AVR target.
+qmk_dir=/opt/vial-qmk
 "$RUNTIME" run --rm ${tty_arg:-} ${usb_args:-} ${uid_arg:-} \
-	-w /home/vscode/vial-qmk \
-	-v "$dir/keyboards:/home/vscode/vial-qmk/keyboards:ro" \
-	-v "$dir/build:/home/vscode/vial-qmk/.build" \
+	-w "$qmk_dir" \
+	-v "$dir/keyboards:$qmk_dir/keyboards:ro" \
+	-v "$dir/build:$qmk_dir/.build" \
 	-e HOME=/tmp \
 	-e ALT_GET_KEYBOARDS=true \
 	-e SKIP_GIT="${SKIP_GIT-yes}" \
