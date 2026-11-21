@@ -1,4 +1,5 @@
 /build/
+/graphify-out/
 *.hex
 *backups
 session-command-summaries/
