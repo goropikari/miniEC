@@ -24,6 +24,10 @@
   .grid button:disabled { opacity: .55; }
   [aria-pressed="true"] { outline: 3px solid #1379db; outline-offset: -3px; }
   .controls { display: flex; flex-wrap: wrap; gap: .65rem; align-items: end; }
+  .plot-grid { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: .6rem; }
+  .plot-scale { display: flex; flex-direction: column; justify-content: space-between; text-align: right; font-size: .8rem; font-variant-numeric: tabular-nums; }
+  #sample-plot { display: block; width: 100%; height: 10rem; border-radius: .25rem; }
+  .plot-time { grid-column: 2; display: flex; justify-content: space-between; }
   .offset-fields { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
   label { display: grid; gap: .3rem; }
   .hint { font-size: .9rem; margin-block: .35rem .65rem; }
@@ -52,6 +56,27 @@
     <p>測定値 <output id="sample">—</output> ／ 基準値 <output id="baseline">—</output></p>
     <p class="hint">基準値はキーを離したときの目安です。オフセットは、基準値に足す値です。</p>
     <p id="thresholds">—</p>
+    <fieldset>
+      <legend>測定値グラフ</legend>
+      <div class="plot-grid">
+        <div class="plot-scale" aria-hidden="true">
+          <span id="sample-peak">—</span>
+          <span id="plot-tick-75">—</span>
+          <span id="plot-tick-50">—</span>
+          <span id="plot-tick-25">—</span>
+          <span>0</span>
+        </div>
+        <canvas id="sample-plot" width="640" height="200" role="img" aria-label="選んだキーの直近10秒の基準値からの増加量" aria-describedby="plot-help">
+          グラフの代わりに上の測定値を参照してください。
+        </canvas>
+        <div class="plot-time hint" aria-hidden="true"><span>10秒前</span><span>現在</span></div>
+      </div>
+      <div class="controls">
+        <span>基準値からの最大増加量 <span id="plot-max">—</span></span>
+        <button type="button" id="reset-plot">測定をリセット</button>
+      </div>
+      <p class="hint" id="plot-help">基準値を0とし、観測した最大値までの増加量を4等分して色分けします。基準値を下回った測定値は0に表示します。最大値を測るには、キーを一度底まで押してください。</p>
+    </fieldset>
     <details>
       <summary>測定して推奨値を出す</summary>
       <ol>
@@ -81,8 +106,14 @@
       </div>
       <p class="hint" id="offset-rule">解放は1以上、押下より小さくします。押下は254以下です。2つの値に差を付けると、測定値が少し揺れても判定が切り替わりにくくなります。</p>
       <div class="controls">
+        <label for="offset-scope">入力値の適用範囲
+          <select id="offset-scope">
+            <option value="key">選んだキー</option>
+            <option value="all">接続中の側の全キー</option>
+          </select>
+        </label>
         <button type="submit">適用</button>
-        <button type="button" id="defaults">標準値に戻す</button>
+        <button type="button" id="defaults">選んだキーを標準値に戻す</button>
       </div>
     </form>
     <details>
@@ -91,13 +122,14 @@
     </details>
     <p>値は少しずつ変え、「適用」を押して打鍵を試します。よければ保存します。</p>
     <button id="save">この側の設定を保存</button>
-    <p class="hint">「適用」と「標準値に戻す」は選んだキーにすぐ反映します。電源を切ったあとも残すには保存します。</p>
+    <p class="hint">適用した値はすぐに反映されます。電源を切ったあとも残すには保存します。</p>
     <details>
       <summary>閾値のバックアップ・復元</summary>
-      <p class="hint">保存済みの押下・解放オフセットを、USB でつないだ側の全キー分まとめて扱います。</p>
+      <p class="hint">USB でつないだ側の全キー分の押下・解放オフセットをまとめて扱います。</p>
       <fieldset id="backup-settings" disabled>
         <legend>接続した側の設定</legend>
         <button type="button" id="backup">保存済みの設定をダウンロード</button>
+        <p class="hint" id="backup-note" hidden>このファームウェアでは現在適用中の値を書き出せます。前回保存した値が必要なら、USB を抜き差しして本体を再起動してからダウンロードしてください。復元には対応ファームウェアが必要です。</p>
         <label for="backup-file">復元する JSON ファイル</label>
         <input id="backup-file" type="file" accept=".json,application/json">
         <p class="hint">復元すると、この側の現在の値と保存済みの値が置き換わります。</p>

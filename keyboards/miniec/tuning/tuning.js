@@ -6,6 +6,15 @@ const keyButtons = new Map();
 const keyLabelMode = element("key-label-mode");
 const press = element("press");
 const release = element("release");
+const offsetScope = element("offset-scope");
+const samplePlot = element("sample-plot");
+const plotContext = samplePlot.getContext("2d");
+const plotMax = element("plot-max");
+const plotTicks = [element("sample-peak"), element("plot-tick-75"), element("plot-tick-50"), element("plot-tick-25")];
+const plotWindowMs = 10000;
+const plotColors = ["#f3c4d0", "#fae2a6", "#cce7c3", "#c7def3"];
+const plotSamples = [];
+let plotBaseline, plotPeak;
 const hid = navigator.hid;
 const commands = { info: 1, read: 2, apply: 3, save: 4, readSaved: 5, restore: 6 };
 const header = [0x4d, 0x45, 1];
@@ -19,6 +28,8 @@ const measurePressed = element("measure-pressed");
 const applyRecommended = element("apply-recommended");
 const measurementStatus = element("measurement-status");
 const backupSettings = element("backup-settings");
+const backupButton = element("backup");
+const backupNote = element("backup-note");
 const backupFile = element("backup-file");
 const restoreButton = element("restore");
 const backupStatus = element("backup-status");
@@ -59,6 +70,64 @@ keyLabelMode.addEventListener("change", () => {
   for (const key of keys.children) updateKeyLabel(key);
 });
 
+function drawSamplePlot(now) {
+  if (!plotContext) return;
+  const { width, height } = samplePlot;
+  const bandHeight = height / plotColors.length;
+  plotColors.forEach((color, index) => {
+    plotContext.fillStyle = color;
+    plotContext.fillRect(0, index * bandHeight, width, bandHeight);
+  });
+
+  const range = plotPeak > plotBaseline ? plotPeak - plotBaseline : 1;
+  const plotY = (value) => 2 + (1 - Math.max(0, value - plotBaseline) / range) * (height - 4);
+  plotContext.beginPath();
+  plotSamples.forEach(({ time, value }, index) => {
+    const x = (1 - (now - time) / plotWindowMs) * (width - 2);
+    const y = plotY(value);
+    if (index === 0) plotContext.moveTo(x, y);
+    else plotContext.lineTo(x, y);
+  });
+  plotContext.strokeStyle = "#172539";
+  plotContext.lineWidth = 3;
+  plotContext.stroke();
+  if (plotSamples.length) {
+    const y = plotY(plotSamples.at(-1).value);
+    plotContext.fillStyle = "#172539";
+    plotContext.fillRect(width - 4, y - 2, 4, 4);
+  }
+}
+
+function updatePlotScale() {
+  const range = Math.max(0, plotPeak - plotBaseline);
+  plotMax.textContent = plotPeak === undefined ? "—" : String(range);
+  plotTicks.forEach((tick, index) => {
+    tick.textContent = range > 0 ? String(range * (4 - index) / 4) : "—";
+  });
+}
+
+function recordPlotSample(value, baseline) {
+  const now = performance.now();
+  if (baseline !== plotBaseline || value > plotPeak) {
+    plotBaseline = baseline;
+    plotPeak = Math.max(plotPeak ?? value, value);
+    updatePlotScale();
+  }
+  plotSamples.push({ time: now, value });
+  while (plotSamples[0].time < now - plotWindowMs) plotSamples.shift();
+  drawSamplePlot(now);
+}
+
+function resetPlot() {
+  plotSamples.length = 0;
+  plotBaseline = plotPeak = undefined;
+  updatePlotScale();
+  drawSamplePlot(0);
+}
+
+element("reset-plot").addEventListener("click", resetPlot);
+resetPlot();
+
 function render(index, [sample, baseline, pressOffset, releaseOffset], fillInputs = false) {
   const key = keyButtons.get(index);
   key.dataset.sample = String(sample);
@@ -67,6 +136,7 @@ function render(index, [sample, baseline, pressOffset, releaseOffset], fillInput
 
   element("sample").value = sample;
   element("baseline").value = baseline;
+  recordPlotSample(sample, baseline);
   if (fillInputs) {
     press.value = pressOffset;
     release.value = releaseOffset;
@@ -103,9 +173,11 @@ function forgetDevice() {
   element("sample").value = "—";
   element("baseline").value = "—";
   element("thresholds").textContent = "—";
+  resetPlot();
   clearMeasurements();
   backupFile.value = "";
   restoreButton.disabled = backupSettings.disabled = true;
+  backupNote.hidden = true;
   backupStatus.textContent = "";
   settings.disabled = true;
   element("connect").disabled = false;
@@ -114,7 +186,10 @@ function forgetDevice() {
 function select(button, index) {
   return run(async () => {
     const data = await request(commands.read, index);
-    if (index !== selected) clearMeasurements();
+    if (index !== selected) {
+      clearMeasurements();
+      resetPlot();
+    }
     selected = index;
     for (const key of keys.children) {
       if (!key.disabled) key.setAttribute("aria-pressed", String(key === button));
@@ -194,8 +269,11 @@ element("connect").addEventListener("click", () => run(async () => {
     selected = renderLayout(await loadLayout(), side, rows, columns);
     render(selected, await request(commands.read, selected), true);
     settings.disabled = false;
-    backupSettings.disabled = info[5] === 0 || info[5] * 2 !== rows * columns;
-    backupStatus.textContent = backupSettings.disabled ? "バックアップ・復元に対応した HEX に書き換えてください。" : "";
+    const savedOffsetsAvailable = supportsSavedOffsets();
+    backupSettings.disabled = false;
+    backupFile.disabled = !savedOffsetsAvailable;
+    backupNote.hidden = savedOffsetsAvailable;
+    backupButton.textContent = savedOffsetsAvailable ? "保存済みの設定をダウンロード" : "現在の設定をダウンロード";
     unsaved = false;
     status.textContent = `${sideName}に接続しました。`;
     const activeKeys = [...keyButtons.keys()];
@@ -203,8 +281,8 @@ element("connect").addEventListener("click", () => run(async () => {
     let pollCount = 0;
     pollTimer = setInterval(() => {
       if (busy || poll || !device?.opened) return;
-      // Read every key in turn and refresh the selected key more frequently.
-      const index = pollCount++ % 6 === 0 ? selected : activeKeys[nextKey++ % activeKeys.length];
+      // Alternate live graph samples with updates to the rest of the layout.
+      const index = pollCount++ % 2 === 0 ? selected : activeKeys[nextKey++ % activeKeys.length];
       poll = request(commands.read, index)
         .then((data) => render(index, data))
         .catch((error) => { if (device) status.textContent = error.message; })
@@ -221,13 +299,26 @@ function validOffsets(down, up) {
   return Number.isInteger(up) && Number.isInteger(down) && 1 <= up && up < down && down <= 254;
 }
 
-async function applyOffsets(down, up) {
+async function applyOffsets(down, up, allKeys = false) {
   if (!validOffsets(down, up)) {
     throw new Error("1 ≤ 解放オフセット < 押下オフセット ≤ 254 にしてください。");
   }
-  render(selected, await request(commands.apply, selected, down, up), true);
-  unsaved = true;
-  status.textContent = "反映しました。電源を切る前に保存してください。";
+  const indices = allKeys ? [...keyButtons.keys()] : [selected];
+  if (allKeys) status.textContent = "接続中の側の全キーに適用しています。";
+  let applied = 0;
+  try {
+    for (const index of indices) {
+      const data = await request(commands.apply, index, down, up);
+      applied++;
+      unsaved = true;
+      render(index, data, true);
+    }
+  } catch (error) {
+    if (!allKeys) throw error;
+    throw new Error(`一括適用が中断しました。反映を確認できたキーは ${applied}/${indices.length} 個です。${error.message} 接続を確認してから、もう一度適用してください。`);
+  }
+  const target = allKeys ? `接続中の側の全${applied}キー` : "選んだキー";
+  status.textContent = `${target}に反映しました。電源を切る前に保存してください。`;
 }
 
 function clearMeasurements() {
@@ -309,7 +400,10 @@ applyRecommended.addEventListener("click", () => run(async () => {
 
 element("offsets").addEventListener("submit", (event) => {
   event.preventDefault();
-  return run(() => applyOffsets(press.valueAsNumber, release.valueAsNumber));
+  const down = press.valueAsNumber;
+  const up = release.valueAsNumber;
+  const allKeys = offsetScope.value === "all";
+  return run(() => applyOffsets(down, up, allKeys));
 });
 element("defaults").addEventListener("click", () => run(() => applyOffsets(info[3], info[4])));
 element("save").addEventListener("click", () => run(async () => {
@@ -323,6 +417,20 @@ element("save").addEventListener("click", () => run(async () => {
 }));
 function connectedSide() {
   return info[0] === 0 ? "left" : "right";
+}
+
+function supportsSavedOffsets() {
+  return info[5] > 0 && info[5] * 2 === info[1] * info[2];
+}
+
+async function readCurrentOffsets() {
+  const offsets = [];
+  for (let index = 0; index < info[1] * info[2]; index++) {
+    const [, , press, release] = await request(commands.read, index);
+    if (!validOffsets(press, release)) throw new Error("現在のオフセットを読み取れませんでした。");
+    offsets.push({ press, release });
+  }
+  return offsets;
 }
 
 async function readSavedOffsets() {
@@ -361,22 +469,24 @@ function runBackup(action) {
   });
 }
 
-element("backup").addEventListener("click", () => runBackup(async () => {
-  backupStatus.textContent = "保存済みの設定を読み込んでいます。";
+backupButton.addEventListener("click", () => runBackup(async () => {
+  const saved = supportsSavedOffsets();
+  const source = saved ? "保存済み" : "現在";
+  backupStatus.textContent = `${source}の設定を読み込んでいます。`;
   const backup = {
     format: "miniec-thresholds",
     version: 1,
     side: connectedSide(),
     rows: info[1],
     columns: info[2],
-    offsets: await readSavedOffsets(),
+    offsets: saved ? await readSavedOffsets() : await readCurrentOffsets(),
   };
   const link = document.createElement("a");
   link.href = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2) + "\n"], { type: "application/json" }));
   link.download = `miniec-thresholds-${backup.side}.json`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-  backupStatus.textContent = "保存済みの設定をダウンロードしました。";
+  backupStatus.textContent = `${source}の設定をダウンロードしました。`;
 }));
 
 backupFile.addEventListener("change", () => {
