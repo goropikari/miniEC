@@ -78,6 +78,7 @@ uint32_t timer_1ms;
 uint32_t last_timer;
 
 static uint16_t ecsm_sw_value[ROWS_PER_HAND][MATRIX_COLS];
+static uint8_t previous_samples[KEY_NUM][2];
 
 typedef struct {
   uint8_t threshold;
@@ -384,13 +385,31 @@ uint16_t ecsm_readkey_raw_k(uint8_t key) {
   return ecsm_readkey_raw(row, col);
 }
 
+static inline uint8_t median_sample(uint8_t key, uint8_t sample) {
+  uint8_t recent = previous_samples[key][0];
+  uint8_t older = previous_samples[key][1];
+  previous_samples[key][0] = sample;
+  previous_samples[key][1] = recent;
+
+  uint8_t low = recent < older ? recent : older;
+  uint8_t high = recent < older ? older : recent;
+  if (sample < low) {
+    return low;
+  }
+  if (sample > high) {
+    return high;
+  }
+  return sample;
+}
+
 // Update press/release state of key at (row, col)
 bool ecsm_update_key(matrix_row_t *current_row, uint8_t row, uint8_t col,
-                     uint16_t sw_value) {
+                     uint8_t sample) {
   bool current_state = (*current_row >> col) & 1;
   bool changed = false;
   int key;
   CR2KEY(col, row, key)
+  uint8_t sw_value = median_sample(key, sample);
 
 #ifdef MINIEC_WEB_TUNING
   const uint8_t press_offset = key_offsets[key].press;
@@ -470,8 +489,10 @@ void ecsm_print_matrix(void) {
   }
 }
 
-static void seed_filter_from_calibration(void) {
+static void seed_filters_from_calibration(void) {
   for (uint16_t k = 0; k < KEY_NUM; k++) {
+    previous_samples[k][0] = calibrate[k].threshold;
+    previous_samples[k][1] = calibrate[k].threshold;
     filter[k].input = calibrate[k].threshold;
     filter[k].output = calibrate[k].threshold;
     filter[k].first = 0;
@@ -549,7 +570,7 @@ void matrix_init_custom(void) {
     filter_config(&filter[k], DEFAULT_LOWPASS_HZ, DEFAULT_FILTER_Q,
                   DEFAULT_SAMPLE_HZ);
   }
-  seed_filter_from_calibration();
+  seed_filters_from_calibration();
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
