@@ -11,10 +11,13 @@
 
 [販売ページ](https://pikarikbd.booth.pm/items/4799710)
 
+## 閾値調整
+
+デスクトップ版 Chrome または Edge で [miniEC 閾値調整（GitHub Pages）](https://goropikari.github.io/miniEC/) を開くと、USB で接続した miniEC のキーごとの押下・解放閾値を調整できます。対応ファームウェアの準備、接続、ローカルでの起動方法は[閾値調整の手順](keyboards/miniec/readme.md#ブラウザで閾値を調整する)を参照してください。
+
 ## キャリブレーション版
 
 `make build-calibration` で QMK 公式の [`qmkfm/base_container`](https://hub.docker.com/r/qmkfm/base_container) をベースに、Vial 対応ファームウェアをコンテナ内でビルドできます。
-ブラウザでキーごとの押下・解放閾値を調整できます。[miniEC 閾値調整を開く](https://goropikari.github.io/miniEC/) · [接続と調整の手順](keyboards/miniec/readme.md)
 
 ## ファームウェアの配布
 

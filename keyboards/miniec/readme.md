@@ -21,13 +21,15 @@ make build-calibration
 
 1. [GitHub Releases](https://github.com/goropikari/miniEC/releases) の Assets から使いたい配列の HEX（例 `miniec_qwerty.hex`）を入手するか、上の手順でビルドします。以前の Vial 版を使っている場合は、更新前に Vial でキーマップを保存してください。
 2. QMK Toolbox で HEX を左右それぞれに書き込みます。Vial を閉じ、調整したい側を PC に直接 USB 接続します。電源を外してから分割ケーブルを抜き差ししてください。
-3. デスクトップ版 Chrome または Edge で [miniEC 閾値調整](https://goropikari.github.io/miniEC/) を開きます。「miniEC に接続」を押し、ブラウザの一覧から miniEC を選びます。画面に表示される「左側」「右側」で接続した側を確認できます。
+3. デスクトップ版 Chrome または Edge で [miniEC 閾値調整（GitHub Pages）](https://goropikari.github.io/miniEC/) を開きます。
 
-ローカルで使う場合は、リポジトリのルートで次のコマンドを実行し、<http://localhost:8000/> を開きます。調整中はターミナルを開いたままにします。
+   ローカルで使う場合は、リポジトリのルートで次のコマンドを実行し、同じブラウザで <http://localhost:8000/> を開きます。調整中はターミナルを開いたままにします。
 
-```sh
-python3 -m http.server 8000 --bind 127.0.0.1 --directory keyboards/miniec/tuning
-```
+   ```sh
+   python3 -m http.server 8000 --bind 127.0.0.1 --directory keyboards/miniec/tuning
+   ```
+
+4. 「miniEC に接続」を押し、ブラウザの一覧から miniEC を選びます。画面に表示される「左側」「右側」で接続した側を確認できます。
 
 ### キーを調整して保存する
 
