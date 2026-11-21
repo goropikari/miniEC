@@ -6,7 +6,6 @@
 
 ![ec switch](docs/image/../../img/ec_switch.png)
 
-
 ここでは実際に動作することが確認できた組み合わせ例を紹介します。
 なお便宜上、NIZ スイッチや BTO スイッチなどと書いていますがハウジングがそのメーカーのものというだけで全てのパーツのメーカーを揃えているわけではないので注意してください。静電容量無接点方式スイッチの場合、メカニカルスイッチでいうところのキメラスイッチは珍しくありません。
 
@@ -15,6 +14,7 @@
 NIZ はハウジング、プランジャー、ラバーシートは販売していますがコニカルスプリングは単独で販売していないため他のメーカー製のものを組み合わせる必要があります。またラバーシートは日本国内のショップでは取り扱いがないため NIZ 本家のサイトから購入し輸入する必要があります。
 
 私が実際に試した構成は以下のようなものです。(全て遊舎工房で購入。2023/6/17 現在は全て在庫切れとなっており長らく在庫切れの状態が続いているため今後取り扱いはされないかもしれません。)
+
 - [NEW NIZ EC SWITCH](https://shop.yushakobo.jp/products/5224?variant=44218541080807)
   - ハウジング・プランジャーのセットです
 - [静電容量式キーボード用円錐バネ （30個）](https://shop.yushakobo.jp/products/4679?variant=43877011095783)
@@ -27,11 +27,10 @@ https://shop.beekeeb.com/product/niz-ec-switch/
 
 ## BTO(Bit Trade One) スイッチ
 
-- [ADELCPS 静電容量スイッチ4点セット10組 ](https://btoshop.jp/products/adelcps?_pos=1&_sid=e6a17b2ee&_ss=r)
+- [ADELCPS 静電容量スイッチ4点セット10組](https://btoshop.jp/products/adelcps?_pos=1&_sid=e6a17b2ee&_ss=r)
   - ハウジング、プランジャー、コニカルスプリングのセットです
 - [静電容量ラバーシート](https://btoshop.jp/products/adelcpru?_pos=1&_sid=45ca45893&_ss=r)
   - ラバーシート
-
 
 ## 東プレスイッチ
 

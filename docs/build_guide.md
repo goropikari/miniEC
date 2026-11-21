@@ -18,49 +18,44 @@
       - [すべてのスイッチ共通](#すべてのスイッチ共通)
     - [ProMicro カバー](#promicro-カバー)
     - [メイン基板・ボトムプレート・ゴム足](#メイン基板ボトムプレートゴム足)
-  - [Firmware 焼き](#firmware-焼き)
-    - [QMK Firmware 環境構築](#qmk-firmware-環境構築)
-      - [ローカル環境に構築](#ローカル環境に構築)
-      - [Docker を使う場合](#docker-を使う場合)
-      - [vial を使う場合(試験的)](#vial-を使う場合試験的)
-    - [入力テスト用キーマップ](#入力テスト用キーマップ)
+  - [ファームウェアの書き込み](#ファームウェアの書き込み)
+    - [HEX を用意する](#hex-を用意する)
+    - [左右の Pro Micro に書き込む](#左右の-pro-micro-に書き込む)
+    - [入力を確認してキー配列を設定する](#入力を確認してキー配列を設定する)
     - [閾値を調整する](#閾値を調整する)
     - [トラブルシューティング](#トラブルシューティング)
   - [オプション](#オプション)
     - [ケース](#ケース)
     - [プレートデータ](#プレートデータ)
 
-
-
 ## 部品
+
 ### キット同封物
 
-| 名前                            | 数量 |
-|---------------------------------|------|
-| メインPCB                       | 2    |
-| トッププレート                  | 2    |
-| ボトムプレート                  | 2    |
-| マイコンカバー                  | 2    |
-| TRRS ジャック  ※               | 2    |
-| タクトスイッチ ※               | 2    |
-| M2, 8 mm スペーサー             | 14   |
-| M2, 5 mm ねじ                   | 28   |
-| M4, 2 mm スペーサー             | 10   |
-| ゴム足                          | 8    |
+| 名前                | 数量 |
+| ------------------- | ---- |
+| メインPCB           | 2    |
+| トッププレート      | 2    |
+| ボトムプレート      | 2    |
+| マイコンカバー      | 2    |
+| TRRS ジャック ※     | 2    |
+| タクトスイッチ ※    | 2    |
+| M2, 8 mm スペーサー | 14   |
+| M2, 5 mm ねじ       | 28   |
+| M4, 2 mm スペーサー | 10   |
+| ゴム足              | 8    |
 
 ※ はんだ付け済みの場合は同封されていません。
 
 ### その他必要なもの
 
-| 名前            | 数量     | 備考                                 |
-|-----------------|----------|--------------------------------------|
-| ProMicro        |        2 | 動作確認済みは以下です<br>- https://shop.yushakobo.jp/products/pro-micro<br>- https://talpkeyboard.net/items/62e24e6f8a0bd07fe2d38137 |
-| 2.5~3.5 mm 12pin ピンヘッダー or コンスルー | 4 | ピンヘッダーであれば ProMicro を購入するとおそらく同封されています。コンスルーは遊舎工房や TALP KEYBOARD から購入できます。<br>- https://shop.yushakobo.jp/products/31 <br>- https://talpkeyboard.net/items/5e056626d790db16e2889233 |
-| スイッチ        | 36キー分 | 使用できるスイッチに関しては「[動作確認済みスイッチ](switch.md)」をご参照ください |
-| キーキャップ    | 36キー分 | NIZ, BTO のスイッチだと CherryMX 用のものが使えます          |
-| TRRS or TRS ケーブル   |     1    | - https://shop.yushakobo.jp/products/trrs_cable<br>- https://www.amazon.co.jp/gp/product/B08T5TT859/ |
-
-
+| 名前                                        | 数量     | 備考                                                                                                                                                                                                                                 |
+| ------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ProMicro                                    | 2        | 動作確認済みは以下です<br>- https://shop.yushakobo.jp/products/pro-micro<br>- https://talpkeyboard.net/items/62e24e6f8a0bd07fe2d38137                                                                                                |
+| 2.5~3.5 mm 12pin ピンヘッダー or コンスルー | 4        | ピンヘッダーであれば ProMicro を購入するとおそらく同封されています。コンスルーは遊舎工房や TALP KEYBOARD から購入できます。<br>- https://shop.yushakobo.jp/products/31 <br>- https://talpkeyboard.net/items/5e056626d790db16e2889233 |
+| スイッチ                                    | 36キー分 | 使用できるスイッチに関しては「[動作確認済みスイッチ](switch.md)」をご参照ください                                                                                                                                                    |
+| キーキャップ                                | 36キー分 | NIZ, BTO のスイッチだと CherryMX 用のものが使えます                                                                                                                                                                                  |
+| TRRS or TRS ケーブル                        | 1        | - https://shop.yushakobo.jp/products/trrs_cable<br>- https://www.amazon.co.jp/gp/product/B08T5TT859/                                                                                                                                 |
 
 ## 実装
 
@@ -73,6 +68,7 @@
 ![裏](img/ura.png)
 
 ### ProMicro・TRRS ジャック・タクトスイッチのハンダ付け
+
 写真のように ProMicro、TRRS ジャック、タクトスイッチ(リセットスイッチ)を配置しハンダ付けします。実装面をお間違えなきようお気をつけください。
 最終的にチップが表面に出ないのが正しいです。
 
@@ -94,7 +90,6 @@
 
 ![niz_switch](img/niz_switch.png)
 
-
 ハウジングを全て嵌めたらプランジャーをハウジングに入れていきます。プランジャーはハウジングのレールに沿うように入れてください。
 
 正しい向き<br>
@@ -104,7 +99,6 @@
 ![軸](img/axis_wrong.jpg)
 
 トッププレートの穴の大きさの影響でプランジャーの滑りが悪くなることがあります。その場合は穴をヤスリで削って拡張してください。
-
 
 #### BTO のスイッチの場合
 
@@ -118,14 +112,11 @@
 
 ![bto switch plate](img/bto_topplate.png)
 
-
 スペーサーが隅にある部分ではハウジングサイズが大きいためスペーサーと干渉します。その部分はハウジングの角をニッパーで切ったり、ヤスリで削ってください。(下の写真は東プレスイッチですが BTO のスイッチでも同様のことが起こります。)
 
 ![topre switch](img/topre_switch_mod.png)
 
 トッププレートの穴の大きさの影響でプランジャーの滑りが悪くなることがあります。その場合は穴をヤスリで削って拡張してください。
-
-
 
 #### 東プレスイッチ(Realforce) の場合
 
@@ -134,14 +125,11 @@ Realforce を分解しハウジング等を入手します。
 
 ![topre switch](img/topre_switch.png)
 
-
 スペーサーが隅にある部分ではハウジングサイズが大きいためスペーサーと干渉します。その部分はハウジングの角をニッパーで切ったり、ヤスリで削ってください。
 
 ![topre switch](img/topre_switch_mod.png)
 
 トッププレートの穴の大きさの影響でプランジャーの滑りが悪くなることがあります。その場合は穴をヤスリで削って拡張してください。
-
-
 
 #### すべてのスイッチ共通
 
@@ -171,11 +159,9 @@ Realforce を分解しハウジング等を入手します。
 
 ![promicro cover](img/cover.png)
 
-
 PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定してください。
 
 ![](img/cover_spacer.png)
-
 
 ### メイン基板・ボトムプレート・ゴム足
 
@@ -186,125 +172,61 @@ PCB に M2 8 mm スペーサーを取り付け、カバーをネジで固定し�
 
 ![bottom plate](img/bottom.png)
 
-## Firmware 焼き
+## ファームウェアの書き込み
 
-以降の動作確認は Linux(Ubuntu 22.04) で行っています。その他の OS をお使いの場合は適宜内容を読み替えてください。
-Windows をお使いの場合は WSL で docker を使い firmware を build した後に生成された hex ファイルを qmk toolbox を使用して firmware を書き込むのが比較的楽だと思います。
-QMK Firmware は version 0.24.11 を元にしています。公式サイトのドキュメンテーションとは version が異なることがあります。その場合は [version 0.24.11 の Doc](https://github.com/qmk/qmk_firmware/tree/0.24.11/docs) をご参照ください。
+miniEC の全7キーマップは Vial 対応です。同じファームウェアで、Vial によるキー割り当てとブラウザによる押下・解放閾値の調整ができます。
 
-### QMK Firmware 環境構築
-#### ローカル環境に構築
+### HEX を用意する
 
-```bash
-sudo apt-get update
-sudo apt-get install -y git python3-pip make gcc-avr binutils-avr avr-libc avrdude vim gcc-arm-none-eabi ripgrep wget libc6-i386 libc6-dev-arm64-cross
+[GitHub Releases](https://github.com/goropikari/miniEC/releases) を開き、Assets から使いたい配列の `miniec_<keymap>.hex` をダウンロードします。組み立て直後の入力確認には `miniec_test.hex`、使いたい配列が決まっていれば `miniec_qwerty.hex` などを選びます。
 
-git clone --depth 1 --recurse-submodules --shallow-submodules -b v1 https://github.com/goropikari/miniEC
-cd miniEC
-python3 -m venv env
-source env/bin/activate
-python3 -m pip install -r requirements.txt
-ln -s $(pwd)/keyboards/miniec qmk_firmware/keyboards/miniec
-cd qmk_firmware
+Assets がない場合や自分でビルドする場合は、Docker を起動してリポジトリのルートから実行します。
+
+```sh
+make build
 ```
 
-#### Docker を使う場合
+Docker 内の Vial-QMK で全キーマップをビルドし、`build/` に HEX を生成します。1種類だけビルドする場合は、たとえば `./docker_build.sh miniec:test` を実行します。
 
-```bash
-docker pull goropikari/qmkfm:0.24.11
-git clone --depth 1 -b v1 https://github.com/goropikari/miniEC
-cd miniEC
-```
+### 左右の Pro Micro に書き込む
 
-firmware を焼くときはこのリポジトリにある `keyboards` ディレクトリ以下を bind mount しています。閾値や keymap を変えるときはこのリポジトリ内のファイルを編集してください。
-ビルドしてできた hex ファイルは `build` ディレクトリ以下に生成されます。
+1. [QMK Toolbox](https://github.com/qmk/qmk_toolbox) の **Open** で書き込む HEX を選び、**Auto-Flash** にチェックを入れます。
+2. USB を抜いて電源を切り、左右をつなぐ TRRS ケーブルを外します。片側だけを USB で PC に接続します。
+3. 本体のリセットスイッチを押します。直後にブートローダーが検出されない場合は、素早く2回押してください。QMK Toolbox が Caterina を検出すると、自動で書き込みが始まります。ログで完了を確認します。
+4. 書き込みが終わったら USB を抜き、もう片側にも同じ HEX を書き込みます。左右の書き込みが済んだら、電源を切った状態で TRRS ケーブルをつなぎ直します。
 
-#### vial を使う場合(試験的)
+Linux でコマンドから書き込む場合は、たとえば `./docker_build.sh miniec:test:flash` を実行し、リセットを求める表示が出てから本体のリセットスイッチを押します。左右それぞれに実行してください。
 
-vial 対応は試験的です。今後もサポートするかは未定です。
-vial 0.7.1 で動作を確認しています。
+すでに使っている個体を更新する場合は、先に Vial のキーマップと、対応版なら調整ツールの保存済み閾値をバックアップします。既存の閾値は各側の EEPROM にあるので、引き継ぐ場合は上記の物理リセットで書き込みます。キーを押しながら USB をつなぐ Bootmagic や、QMK Toolbox の **Reset EEPROM** は保存済み設定を消します。[Caterina の書き込み手順](https://docs.qmk.fm/flashing#caterina) · [Bootmagic](https://docs.qmk.fm/features/bootmagic)
 
-[vial.md](vial.md) をご参照ください。
+### 入力を確認してキー配列を設定する
 
+`miniec_test.hex` を使った場合は、テキストエディタなどを開いてすべてのキーが反応することを確認します。反応しないキーがあれば、[閾値を調整する](#閾値を調整する)を参照してください。
 
-### 入力テスト用キーマップ
+入力確認が済んだら、使いたい配列の HEX を左右に書き込むか、Vial で割り当てを変更します。全キーマップが Vial に対応しているので、キー割り当ての変更のたびに再ビルドする必要はありません。[Vial の案内](vial.md)
 
-入力テスト用のキーマップを焼いて全キーが入力できるか確認してください
+### QMK Toolbox の HID Console で測定値を見る
 
-```bash
-# ローカル環境を使う場合
-make miniec:test:flash
+1. 測定したい側に `miniec_test.hex` を書き込みます。HID Console への出力は `test` キーマップで有効です。
+2. USB を抜いて電源を切り、左右をつなぐ TRRS ケーブルを外します。測定したい側を USB で PC に直接接続し、QMK Toolbox の **HID Console** を開きます。反対側も調べる場合は、そちらを USB で直接接続します。[QMK Toolbox の HID Console](https://github.com/qmk/qmk_toolbox#hid-console)
+3. 接続した側の測定値が、マトリクス順に3行×6列で繰り返し出力されます。値は ADC 生値を4で割った整数（0〜255）です。キーを一つ押して数字が変わる位置を探し、同じ位置の値を離した状態と押した状態で見比べます。
 
-# docker を使う場合
-QMK_VERSION=0.24.11 ./docker_build.sh miniec:test:flash
-```
-
-`Waiting for USB serial port - reset your controller now (Ctrl+C to cancel)....` と出たら reset switch を2回押して firmware を書き込んでください。
-
-※ `QMK_VERSION=0.24.11 ./docker_build.sh miniec:test` と `flash` を抜くとコンパイルするだけで終わります。WSL を使用している場合はこちらの方法が推奨です。
-
-
-
-
-うまく入力ができなかった場合は後述の「[閾値を調整する](#閾値を調整する)」を参考にしきい値を調節してください。
-
-入力がうまくできるようになったら `keyboards/miniec/keymaps/default/keymap.c` をお好みのキーマップに編集して firmware を焼き直し完成です。
-
-
-```bash
-# ローカル環境を使う場合
-make miniec:default:flash
-
-# docker を使う場合
-QMK_VERSION=0.24.11 ./docker_build.sh miniec:default:flash
-```
-
+押下・解放時には `KL:` で始まる打鍵ログも流れます。`pressed: 1` は押下、`pressed: 0` は解放です。測定値を見て閾値を変更する場合は、次の手順でブラウザの調整ツールを使います。
 
 ### 閾値を調整する
 
-静電容量無接点方式スイッチではキーを押したときの静電容量の変化もとい電圧の変化を検出して押下判定をします。
-`keyboards/miniec/config.h` にある `HIGH_THRESHOLD` に設定した値を超えるとキーが押された状態、`LOW_THRESHOLD` を下回るとキーが押されていない状態と判定されます。
+デスクトップ版 Chrome または Edge で [miniEC 閾値調整（GitHub Pages）](https://goropikari.github.io/miniEC/) を開き、調整したい側を USB で直接接続して「miniEC に接続」を押します。アナログ測定値を見ながら、キーごとの押下・解放オフセットを変更できます。離した状態と押した状態を測って推奨値を出すこともできます。
 
-[hid_listen](https://www.pjrc.com/teensy/hid_listen.html) を使うと各キーの電圧(スケールされている)を見ることが出来ます。公式ページからバイナリを落としてくるか下記のように docker で立ち上げ、キーボードを PC に繋いでください。[QMK Toolbox](https://github.com/qmk/qmk_toolbox#hid-console) でも同様の出力を得られるようですが確認できる環境を持ち合わせていないため未確認です。
-
-```bash
-docker run --rm -it --privileged -v /dev:/dev goropikari/hid_listen:1.01
-```
-
-下は2回分の読み取り値の例です(USB ケーブルが刺されている側だけの値が出力されます)。
-キーを押していない状態が 70 以下、押した状態では 282 と他よりも高くなっています。
-全キー分の値を見つつ最適な `HIGH_THRESHOLD`, `LOW_THRESHOLD` の値を決めてください
-
-```
-Waiting for device:
-Listening:
-  67  64  48  45  46  45
-  18  37  45  34  30  63
-  28  50  40  48  43  78
-
-  64  68  47  41  41  32
-  40  38  40  39  28  60
-  27  52  39  46  43 282 <- 押したキー
-```
-
-キーを押したときに文字が入力されて邪魔な場合は何の文字も入力されない keymap を用意しているので一度そちらに firmware を焼き直してみてください。
-
-```bash
-# ローカル環境を使う場合
-make miniec:blank:flash
-
-# docker を使う場合
-QMK_VERSION=0.24.11 ./docker_build.sh miniec:blank:flash
-```
+調整した値は「この側の設定を保存」で EEPROM に記録します。反対側も調整する場合は、そちらを USB で直接接続します。ローカルで起動する方法も含め、詳しくは[閾値調整ツールの使い方](../keyboards/miniec/readme.md#ブラウザで閾値を調整する)を参照してください。
 
 ### トラブルシューティング
 
 うまく機能しない場合に調査すべきポイントを [wiki](https://github.com/goropikari/miniEC/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0) にまとめています。
 
-
 ## オプション
 
 ### ケース
+
 小石用ケースの 3D モデルを配布しております。[左用](../3d_model/case-left.stl), [右用](../3d_model/case-right.stl)。
 
 ご家庭の 3D プリンター、もしくは専門の業者に依頼して印刷してご使用ください。
@@ -319,4 +241,5 @@ QMK_VERSION=0.24.11 ./docker_build.sh miniec:blank:flash
 写真のケースは JLCPCB Resin Imagine Black で作りました。
 
 ### プレートデータ
+
 ご自身でケースを作成されたい方は[ボトムプレートのデータ](../plate/)を KiCad, svg 形式で配布しておりますのでご活用ください。

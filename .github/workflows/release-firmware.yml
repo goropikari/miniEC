@@ -1,0 +1,124 @@
+name: Release firmware
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions: {}
+
+concurrency:
+  group: firmware-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  builder:
+    if: ${{ !github.event.deleted }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and push the Vial builder image
+        id: build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s\n' "$GH_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          image="ghcr.io/${GITHUB_REPOSITORY,,}-builder"
+          tag="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          metadata="$RUNNER_TEMP/builder.json"
+          docker buildx build --pull --push --platform linux/amd64 \
+            --tag "$image:$tag" \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --metadata-file "$metadata" .
+          digest=$(jq -er '."containerimage.digest" | select(test("^sha256:[0-9a-f]{64}$"))' "$metadata")
+          printf 'image=%s@%s\n' "$image" "$digest" >> "$GITHUB_OUTPUT"
+
+  firmware:
+    needs: builder
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build all keymaps with the published image
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MINIEC_BUILDER_IMAGE: ${{ needs.builder.outputs.image }}
+        run: |
+          test -n "$MINIEC_BUILDER_IMAGE"
+          printf '%s\n' "$GH_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          make build
+          for keymap in keyboards/miniec/keymaps/*/keymap.c; do
+            test -f "$keymap"
+            directory=${keymap%/keymap.c}
+            test -s "build/miniec_${directory##*/}.hex"
+          done
+          source=$(git rev-parse HEAD)
+          printf 'source=%s\nbuilder=%s\n' "$source" "$MINIEC_BUILDER_IMAGE" > build/miniec-build-info.txt
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: miniec-firmware
+          path: |
+            build/miniec_*.hex
+            build/miniec-build-info.txt
+          if-no-files-found: error
+          overwrite: true
+
+  release:
+    needs: firmware
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: miniec-firmware
+          path: build
+
+      - name: Attach firmware and build information to the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          build_info=build/miniec-build-info.txt
+          files=(build/miniec_*.hex "$build_info")
+          for file in "${files[@]}"; do
+            test -s "$file"
+          done
+          if assets=$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'); then
+            missing=()
+            for file in "${files[@]}"; do
+              if ! grep -Fxq -- "${file##*/}" <<< "$assets"; then
+                missing+=("$file")
+              fi
+            done
+            if (( ${#missing[@]} == 0 )); then
+              exit 0
+            fi
+            if (( ${#missing[@]} < ${#files[@]} )); then
+              if ! gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+                --pattern "${build_info##*/}" --output "$RUNNER_TEMP/released-build-info.txt" ||
+                ! cmp -s "$build_info" "$RUNNER_TEMP/released-build-info.txt"; then
+                echo 'Existing release assets lack matching build information.' >&2
+                exit 1
+              fi
+            fi
+            gh release upload "$GITHUB_REF_NAME" "${missing[@]}" --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$GITHUB_REF_NAME" "${files[@]}" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+          fi

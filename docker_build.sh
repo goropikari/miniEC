@@ -55,7 +55,7 @@ fi
 if [ -z "$keyboard" ]; then
 	keyboard=all
 fi
-if [ -n "$target" ]; then
+if [ -n "$target" ] && [ -z "$SKIP_FLASHING_SUPPORT" ]; then
 	# IF we are using docker on non Linux and docker-machine isn't working print an error
 	# ELSE set usb_args
 	if [ ! "$(uname)" = "Linux" ] && [ "$RUNTIME" = "docker" ] && ! docker-machine active >/dev/null 2>&1; then
@@ -67,19 +67,33 @@ if [ -n "$target" ]; then
 		usb_args="--privileged -v /dev:/dev"
 	fi
 fi
-dir=$(pwd -W 2>/dev/null) || dir=$PWD  # Use Windows path if on Windows
+dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ -n "$MINIEC_BUILDER_IMAGE" ]; then
+	image=$MINIEC_BUILDER_IMAGE
+	"$RUNTIME" pull "$image" || exit $?
+else
+	image=miniec-vial
+	# Reuse Docker's cached layers when the toolchain and QMK version are unchanged.
+	"$RUNTIME" build --tag "$image" "$dir" || exit $?
+fi
+mkdir -p "$dir/build" || exit $?
 
 if [ "$RUNTIME" = "docker" ]; then
 	uid_arg="--user $(id -u):$(id -g)"
 fi
+if [ -t 0 ] && [ -t 1 ]; then
+	tty_arg="-it"
+fi
 
-# Run container and build firmware
-"$RUNTIME" run --rm -it $usb_args \
-	-w /home/vscode/qmk_firmware \
-	-v $(pwd)/keyboards:/home/vscode/qmk_firmware/keyboards \
-	-v $(pwd)/build:/home/vscode/qmk_firmware/.build \
+# Run make in the firmware checkout, following QMK util/docker_cmd.sh.
+# The image initializes only LUFA, the submodule used by this AVR target.
+"$RUNTIME" run --rm ${tty_arg:-} ${usb_args:-} ${uid_arg:-} \
+	-w /home/vscode/vial-qmk \
+	-v "$dir/keyboards:/home/vscode/vial-qmk/keyboards:ro" \
+	-v "$dir/build:/home/vscode/vial-qmk/.build" \
+	-e HOME=/tmp \
 	-e ALT_GET_KEYBOARDS=true \
-	-e SKIP_GIT="$SKIP_GIT" \
+	-e SKIP_GIT="${SKIP_GIT-yes}" \
+	-e SKIP_VERSION="$SKIP_VERSION" \
 	-e MAKEFLAGS="$MAKEFLAGS" \
-	goropikari/qmkfm:${QMK_VERSION:-0.24.11} \
-	bash -c "sudo chown -R vscode .build && make $keyboard${keymap:+:$keymap}${target:+:$target}"
+	"$image" make "$keyboard${keymap:+:$keymap}${target:+:$target}"

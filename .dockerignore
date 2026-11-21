@@ -1,0 +1,3 @@
+# The builder fetches its dependencies without copying repository files.
+**
+!Dockerfile
