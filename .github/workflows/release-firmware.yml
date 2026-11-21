@@ -38,7 +38,7 @@ jobs:
           docker buildx build --pull --push --platform linux/amd64 \
             --tag "$image:$tag" \
             --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
-            --metadata-file "$metadata" --file .devcontainer/Dockerfile .devcontainer
+            --metadata-file "$metadata" .
           digest=$(jq -er '."containerimage.digest" | select(test("^sha256:[0-9a-f]{64}$"))' "$metadata")
           printf 'image=%s@%s\n' "$image" "$digest" >> "$GITHUB_OUTPUT"
 

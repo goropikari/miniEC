@@ -74,7 +74,7 @@ if [ -n "$MINIEC_BUILDER_IMAGE" ]; then
 else
 	image=miniec-vial
 	# Reuse Docker's cached layers when the toolchain and QMK version are unchanged.
-	"$RUNTIME" build --tag "$image" --file "$dir/.devcontainer/Dockerfile" "$dir/.devcontainer" || exit $?
+	"$RUNTIME" build --tag "$image" "$dir" || exit $?
 fi
 mkdir -p "$dir/build" || exit $?
 
