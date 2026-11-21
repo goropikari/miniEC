@@ -21,13 +21,13 @@ make build-calibration
 
 1. [GitHub Releases](https://github.com/goropikari/miniEC/releases) の Assets から使いたい配列の HEX（例 `miniec_qwerty.hex`）を入手するか、上の手順でビルドします。以前の Vial 版を使っている場合は、更新前に Vial でキーマップを保存してください。
 2. QMK Toolbox で HEX を左右それぞれに書き込みます。Vial を閉じ、調整したい側を PC に直接 USB 接続します。電源を外してから分割ケーブルを抜き差ししてください。
-3. PC 上のリポジトリのルートで、次のコマンドを実行します。調整中はこのターミナルを開いたままにします。
+3. デスクトップ版 Chrome または Edge で [miniEC 閾値調整](https://goropikari.github.io/miniEC/) を開きます。「miniEC に接続」を押し、ブラウザの一覧から miniEC を選びます。画面に表示される「左側」「右側」で接続した側を確認できます。
 
-   ```sh
-   python3 -m http.server 8000 --bind 127.0.0.1 --directory keyboards/miniec/tuning
-   ```
+ローカルで使う場合は、リポジトリのルートで次のコマンドを実行し、<http://localhost:8000/> を開きます。調整中はターミナルを開いたままにします。
 
-4. デスクトップ版 Chrome または Edge で <http://localhost:8000/> を開きます。「miniEC に接続」を押し、ブラウザの一覧から miniEC を選びます。画面に表示される「左側」「右側」で接続した側を確認できます。
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory keyboards/miniec/tuning
+```
 
 ### キーを調整して保存する
 
@@ -63,8 +63,8 @@ make build-calibration
 
 ### 接続できないとき
 
-- 「キー配置を読み込めません」と表示される場合は、サーバーを起動し直してブラウザを再読み込みします。起動コマンドの `--directory` が `keyboards/miniec/tuning` になっているか確認してください。
-- ブラウザにデバイスが出ない場合は、Chrome または Edge で `localhost:8000/` を開いているか確認し、USB データ通信に対応したケーブルでつなぎ直します。
+- 「キー配置を読み込めません」と表示される場合は、ページを再読み込みします。ローカルで使っている場合は、起動コマンドの `--directory` が `keyboards/miniec/tuning` になっているか確認してください。
+- ブラウザにデバイスが出ない場合は、デスクトップ版 Chrome または Edge でページを開いているか確認し、USB データ通信に対応したケーブルでつなぎ直します。
 - デバイスを選べても応答がない場合は、Vial を閉じ、上の手順で生成・配布されたキャリブレーション対応の HEX を書き込んでいるか確認します。
 
 Vial では同じファームウェアでキーマップを変更できます。Vial が求めるロック解除には、左側のマトリクス座標 (0, 0) と (2, 4) のキーを使います。

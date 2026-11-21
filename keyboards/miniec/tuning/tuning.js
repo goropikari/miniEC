@@ -125,8 +125,8 @@ function select(button, index) {
 
 async function loadLayout() {
   const sources = [
-    ["../keyboard.json", (data) => data.layouts?.LAYOUT?.layout],
     ["./layout.json", (data) => data],
+    ["../keyboard.json", (data) => data.layouts?.LAYOUT?.layout],
   ];
   for (const [url, extract] of sources) {
     try {
@@ -138,7 +138,7 @@ async function loadLayout() {
       // Try the other source if this server does not provide usable JSON here.
     }
   }
-  throw new Error("キー配置を読み込めません。README の起動コマンドでサーバーを起動し直してください。");
+  throw new Error("キー配置を読み込めません。ページを再読み込みしてください。");
 }
 
 function renderLayout(layout, side, rows, columns) {
@@ -423,5 +423,5 @@ if (hid) {
   });
 } else {
   element("connect").disabled = true;
-  status.textContent = "Chrome または Edge で http://localhost:8000/ を開いてください。";
+  status.textContent = "デスクトップ版の Chrome または Edge で、このページを HTTPS または localhost から開いてください。";
 }
