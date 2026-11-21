@@ -19,16 +19,9 @@
 
 `make build` で QMK 公式の [`qmkfm/base_container`](https://hub.docker.com/r/qmkfm/base_container) をベースに、Vial 対応ファームウェアをコンテナ内でビルドできます。
 
-## ファームウェアの配布
+## ファームウェアの入手
 
 ビルド済みの HEX は [GitHub Releases](https://github.com/goropikari/miniEC/releases) の Assets から入手できます。
-このワークフローを含むコミットに `v1.2.3` のようなタグを付けて push すると、GitHub Actions が次の処理を実行します。
-
-1. リポジトリ直下の `Dockerfile` から Vial のビルド用イメージを作成し、GitHub Container Registry (GHCR) の `ghcr.io/goropikari/miniec-builder` に実行ごとのタグで保存します。
-2. GHCR からそのイメージをダイジェスト指定で取得し、全キーマップをビルドします。
-3. タグの Release に各配列の `miniec_<keymap>.hex` と、使用したイメージのダイジェストとソースのコミットを記録した `miniec-build-info.txt` を添付します。
-
-過去のリリースと同じビルド環境を使えるよう、リリースで使ったイメージは GHCR に残してください。GHCR が非公開の場合、ローカルから取得するにはパッケージの読み取り権限が必要です。
 
 License
 
