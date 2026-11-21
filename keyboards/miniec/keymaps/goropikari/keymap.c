@@ -40,44 +40,32 @@ enum layer_names {
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [_DVORAK] = LAYOUT(
-        KC_QUOT     , KC_COMM  , KC_DOT   , KC_P                 , KC_Y    ,                KC_F     , KC_G     , KC_C     , KC_R     , KC_L     ,
-        KC_A        , KC_O     , KC_E     , KC_U                 , KC_I    ,                KC_D     , KC_H     , KC_T     , KC_N     , KC_S     ,
-        KC_SCLN     , KC_Q     , KC_J     , KC_K                 , KC_X    ,                KC_B     , KC_M     , KC_W     , KC_V     , KC_Z     ,
-                          RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL ,                RAISE    , KC_MT_SS , RALT_T(KC_ENT)
-    ),
+  [_DVORAK] = LAYOUT(
+      KC_QUOT     , KC_COMM  , KC_DOT   , KC_P                 , KC_Y    ,                KC_F     , KC_G     , KC_C     , KC_R     , KC_L     ,
+      KC_A        , KC_O     , KC_E     , KC_U                 , KC_I    ,                KC_D     , KC_H     , KC_T     , KC_N     , KC_S     ,
+      KC_SCLN     , KC_Q     , KC_J     , KC_K                 , KC_X    ,                KC_B     , KC_M     , KC_W     , KC_V     , KC_Z     ,
+                        RGUI_T(KC_ESC)  , LT(_LOWER, KC_MINS)  , KC_LCTL ,                RAISE    , KC_MT_SS , RALT_T(KC_ENT)
+  ),
 
-    [_LOWER] = LAYOUT(
-        KC_EXLM     , KC_AT    , KC_HASH  , KC_DLR               , KC_PERC ,               KC_CIRC   , KC_AMPR  , KC_UP    , KC_LPRN  , KC_RPRN  ,
-        KC_LNG3     , KC_A     , KC_Z     , KC_LNG3              , KC_PSCR ,               KC_HOME   , KC_LEFT  , KC_DOWN  , KC_RIGHT , KC_BSPC  ,
-        KC_LNG4     , XXXXX    , XXXXX    , KC_LNG4              , XXXXX   ,               KC_END    , KC_ENT   , KC_LBRC  , KC_RBRC  , KC_DEL   ,
-                                 KC_RGUI  , LOWER                , KC_TRNS ,               ADJUST    , KC_MT_SS , XXXXX
-    ),
+  [_LOWER] = LAYOUT(
+      KC_EXLM     , KC_AT    , KC_HASH  , KC_DLR               , KC_PERC ,               KC_CIRC   , KC_AMPR  , KC_UP    , KC_LPRN  , KC_RPRN  ,
+      KC_LNG3     , KC_A     , KC_Z     , KC_LNG3              , KC_PSCR ,               KC_HOME   , KC_LEFT  , KC_DOWN  , KC_RIGHT , KC_BSPC  ,
+      KC_LNG4     , XXXXX    , XXXXX    , KC_LNG4              , XXXXX   ,               KC_END    , KC_ENT   , KC_LBRC  , KC_RBRC  , KC_DEL   ,
+                               KC_RGUI  , LOWER                , KC_RALT ,               ADJUST    , KC_MT_SS , XXXXX
+  ),
 
-    [_RAISE] = LAYOUT(
-        KC_1        , KC_2     , KC_3     , KC_4                 , KC_5    ,               XXXXX     , XXXXX    , KC_TAB   , KC_SLSH  , S(KC_SLSH)  ,
-        KC_6        , KC_7     , KC_8     , KC_9                 , KC_0    ,               KC_PIPE   , KC_BSLS  , KC_GRV   , KC_EQL   , KC_RSFT     ,
-        KC_LCTL     , KC_LSFT  , XXXXX    , XXXXX                , XXXXX   ,               XXXXX     , KC_PLUS  , KC_TILD  , XXXXX    , KC_RSFT     ,
-                                 KC_RGUI  , ADJUST               , KC_TRNS ,               XXXXX     , XXXXX    , XXXXX
-    ),
+  [_RAISE] = LAYOUT(
+      KC_1        , KC_2     , KC_3     , KC_4                 , KC_5    ,                KC_LBRC  , KC_RBRC  , KC_TAB   , KC_SLSH  , S(KC_SLSH)  ,
+      KC_6        , KC_7     , KC_8     , KC_9                 , KC_0    ,                KC_PIPE  , KC_BSLS  , KC_GRV   , KC_EQL   , KC_RSFT     ,
+      KC_LCTL     , KC_LSFT  , XXXXX    , XXXXX                , XXXXX   ,                XXXXX   , KC_PLUS  , KC_TILD  , XXXXX    , KC_RSFT     ,
+                               KC_RGUI  , ADJUST               , KC_RALT ,                XXXXX    , XXXXX    , XXXXX
+  ),
 
-    [_ADJUST] = LAYOUT(
-        KC_EXLM     , KC_AT    , KC_HASH  , KC_DLR               , KC_PERC ,               KC_CIRC    , KC_AMPR , KC_ASTR   , KC_LBRC   , KC_RBRC   ,
-        XXXXX       , XXXXX    , XXXXX    , XXXXX                , XXXXX   ,               KC_PIPE    , KC_BSLS , XXXXX     , S(KC_LBRC), S(KC_RBRC),
-        KC_F1       , KC_F2    , KC_F3    , KC_F4                , KC_F5   ,               KC_F6      , KC_F7   , KC_F8     , KC_F9     , KC_F10    ,
-                                XXXXX     , XXXXX                , KC_TRNS ,               XXXXX      , XXXXX   , XXXXX
-    )
-  };
+  [_ADJUST] = LAYOUT(
+      KC_EXLM     , KC_AT    , KC_HASH  , KC_DLR               , KC_PERC ,              KC_CIRC    , KC_AMPR   , KC_ASTR   , KC_LBRC   , KC_RBRC   ,
+      XXXXX       , XXXXX    , XXXXX    , XXXXX                , XXXXX   ,              KC_PIPE    , KC_BSLS   , XXXXX     , S(KC_LBRC), S(KC_RBRC),
+      KC_F1       , KC_F2    , KC_F3    , KC_F4                , KC_F5   ,              KC_F6      , KC_F7     , KC_F8     , KC_F9     , KC_F10    ,
+                              XXXXX     , XXXXX                , XXXXX   ,                 XXXXX   , XXXXX     , XXXXX
+  )
+};
 // clang-format on
-
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//   // If console is enabled, it will print the matrix position and status of
-//   each key pressed
-// #ifdef CONSOLE_ENABLE
-//     uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int:
-//     %u, count: %u\n", keycode, record->event.key.col, record->event.key.row,
-//     record->event.pressed, record->event.time, record->tap.interrupted,
-//     record->tap.count);
-// #endif
-//   return true;
-// }
