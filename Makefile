@@ -1,5 +1,3 @@
-.PHONY: build build-calibration
-build: build-calibration
-
-build-calibration:
+.PHONY: build
+build:
 	./docker_build.sh miniec:all

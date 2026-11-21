@@ -5,7 +5,7 @@
 リポジトリのルートから実行します。
 
 ```sh
-make build-calibration
+make build
 ```
 
 初回は Docker Hub の `qmkfm/base_container` をベースに、Vial-QMK を含むビルド用イメージを作成します。
